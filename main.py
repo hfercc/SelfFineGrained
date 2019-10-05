@@ -75,7 +75,7 @@ def main():
         raise NotImplementedError
 
     criterion = nn.CrossEntropyLoss().cuda()
-    if args.gpu os None:
+    if args.gpu is None:
         model = torch.nn.DataParallel(model)
         model = model.cuda()
     else:
