@@ -150,7 +150,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         loss.backward()
         optimizer.step()
 
-        prec1 = accuracy(output, target, topk=(1))
+        prec1 = accuracy(output, target, topk=(1,))
         losses.update(loss.item(), input.shape[0])
         top1.update(prec1[0].item(), input.shape[0])
 
@@ -181,7 +181,7 @@ def val(val_loader, model, criterion):
             loss.backward()
             optimizer.step()
 
-            prec1 = accuracy(output, target, topk=(1))
+            prec1 = accuracy(output, target, topk=(1,))
             losses.update(loss.item(), input.shape[0])
             top1.update(prec1[0].item(), input.shape[0])
 
