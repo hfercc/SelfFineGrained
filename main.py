@@ -73,7 +73,7 @@ def main():
         val_dataset = datasets.ImageFolder(valdir, val_transforms)
     else:
         raise NotImplementedError
-        
+
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
@@ -139,7 +139,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     losses = AverageMeter()
     top1 = AverageMeter()
     model.train()
-    for index, (input, _) in enumerate(train_loader):
+    for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
 
@@ -170,7 +170,7 @@ def val(val_loader, model, criterion):
     top1 = AverageMeter()
     model.eval()
     with torch.no_grad():
-        for index, (input, _) in enumerate(val_loader):
+        for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
             target = target.cuda(args.gpu)
 
