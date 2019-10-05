@@ -1,7 +1,7 @@
 import os
 import uuid
 import torch
-import torch.nn
+import torch.nn as nn
 import argparse
 import torchvision
 import tensorboardX
