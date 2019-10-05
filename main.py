@@ -81,7 +81,7 @@ def main():
     else:
         model = model.cuda()
 
-    optimizer = torch.optim.SGD(model., lr=args.lr,
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr,
                                 momentum=0.9,
                                 weight_decay=args.weight_decay)
 
