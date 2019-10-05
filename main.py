@@ -5,6 +5,7 @@ import torch.nn
 import argparse
 import torchvision
 import tensorboardX
+import torchvision.transforms as transforms
 
 parser = argparse.ArgumentParser(description='Selfie')
 parser.add_argument('--data', metavar='DIR',
