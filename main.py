@@ -68,7 +68,7 @@ def main():
             transforms.ToTensor(),
             normalize,
         ])
-
+        num_classes = 200
         train_dataset = datasets.ImageFolder(traindir, train_transforms)
         val_dataset = datasets.ImageFolder(valdir, val_transforms)
     else:
@@ -85,6 +85,7 @@ def main():
 
     if args.arch == 'resnet50':
         model = torchvision.models.resnet50(pretrained = True)
+        model.fc = nn.Linear(131072, num_classes)
     else:
         raise NotImplementedError
 
