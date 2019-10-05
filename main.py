@@ -73,6 +73,15 @@ def main():
         val_dataset = datasets.ImageFolder(valdir, val_transforms)
     else:
         raise NotImplementedError
+        
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers, pin_memory=True)
+
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset,
+        batch_size=args.batch_size, shuffle=False,
+        num_workers=args.workers, pin_memory=True)
 
     if args.arch == 'resnet50':
         model = torchvision.models.resnet50(pretrained = True)
