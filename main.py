@@ -222,3 +222,6 @@ class AverageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+if __name__ == '__main__':
+    main()
