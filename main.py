@@ -5,6 +5,7 @@ import torch.nn
 import argparse
 import torchvision
 import tensorboardX
+import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
 parser = argparse.ArgumentParser(description='Selfie')
