@@ -143,7 +143,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
 
-        output = model(output)
+        output = model(input)
         loss = criterion(output, target)
         optimizer.zero_grad()
         loss.backward()
@@ -174,7 +174,7 @@ def val(val_loader, model, criterion):
             input = input.cuda(args.gpu)
             target = target.cuda(args.gpu)
 
-            output = model(output)
+            output = model(input)
             loss = criterion(output, target)
             optimizer.zero_grad()
             loss.backward()
