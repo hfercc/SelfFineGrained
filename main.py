@@ -117,14 +117,14 @@ def main():
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(args.task, 'checkpoint.pth.tar'))
+                }, os.path.join(str(args.task), 'checkpoint.pth.tar'))
             torch.save(
                 {
                 'epoch': epoch,
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(args.task, 'model_best.pth.tar'))
+                }, os.path.join(str(args.task), 'model_best.pth.tar'))
         else:
             torch.save(
                 {
@@ -132,7 +132,7 @@ def main():
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(args.task, 'checkpoint.pth.tar'))
+                }, os.path.join(str(args.task), 'checkpoint.pth.tar'))
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     global args
