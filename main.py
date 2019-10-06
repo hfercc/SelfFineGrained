@@ -160,7 +160,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
                    epoch, index, len(train_loader), loss=losses, top1=top1))
     scheduler.step()
-    return losses.avg(), top1.avg()
+    return losses.avg, top1.avg
 
 def val(val_loader, model, criterion):
     global args
@@ -188,7 +188,7 @@ def val(val_loader, model, criterion):
                       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
                        epoch, index, len(train_loader), loss=losses, top1=top1))
 
-    return losses.avg(), top1.avg()
+    return losses.avg, top1.avg
 
 def accuracy(output, target, topk=(1,)):
     #print(output.shape)
