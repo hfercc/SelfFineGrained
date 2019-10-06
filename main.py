@@ -36,8 +36,6 @@ parser.add_argument('--print-freq', '-p', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
-parser.add_argument('--modeldir', default=None, type=str,
-                    help='director of checkpoint')
 parser.add_argument('--store-model-everyepoch', dest='store_model_everyepoch', action='store_true',
                     help='store checkpoint in every epoch')
 parser.add_argument('--evaluation', action="store_true")
@@ -119,14 +117,14 @@ def main():
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(args.modeldir, 'checkpoint.pth.tar'))
+                }, os.path.join(args.task, 'checkpoint.pth.tar'))
             torch.save(
                 {
                 'epoch': epoch,
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(args.modeldir, 'model_best.pth.tar'))
+                }, os.path.join(args.task, 'model_best.pth.tar'))
         else:
             torch.save(
                 {
@@ -134,7 +132,7 @@ def main():
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(args.modeldir, 'checkpoint.pth.tar'))
+                }, os.path.join(args.task, 'checkpoint.pth.tar'))
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     global args
