@@ -180,7 +180,7 @@ def val(val_loader, model, criterion):
             top1.update(prec1[0].item(), input.shape[0])
 
             if index % args.print_freq == 0:
-                print('Epoch: [{1}/{2}]\t'
+                print('Epoch: [{0}/{1}]\t'
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
                        index, len(val_loader), loss=losses, top1=top1))
