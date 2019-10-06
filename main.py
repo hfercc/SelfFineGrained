@@ -174,9 +174,6 @@ def val(val_loader, model, criterion):
 
             output = model(input)
             loss = criterion(output, target)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
 
             prec1 = accuracy(output, target, topk=(1,))
             losses.update(loss.item(), input.shape[0])
