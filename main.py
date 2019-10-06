@@ -102,6 +102,7 @@ def main():
 
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
 
+    best_prec1 = 0
     for epoch in range(args.start_epoch, args.epochs):
         trainObj, top1 = train(train_loader, model, criterion, optimizer, scheduler, epoch)
         valObj, prec1 = val(val_loader, model, criterion)
