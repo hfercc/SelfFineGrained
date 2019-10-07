@@ -197,7 +197,7 @@ def val(val_loader, model, ema_model, criterion):
         for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
             target = target.cuda(args.gpu)
-            output = model(output)
+            output = model(input)
             ema_output = ema_model(input)
 
             loss = criterion(output, target)
