@@ -193,7 +193,6 @@ def val(val_loader, model, ema_model, criterion):
     losses = AverageMeter()
     top1 = AverageMeter()
     model.eval()
-    consistency_weight = get_current_consistency_weight(epoch - 30)
     with torch.no_grad():
         for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
@@ -201,14 +200,7 @@ def val(val_loader, model, ema_model, criterion):
 
             ema_output = ema_model(input)
 
-            consistency_loss = consistency_weight * \
-            nn.MSELoss()(F.softmax(output, 1), F.softmax(ema_output, 1)) / input.shape[0]
             loss = criterion(output, target)
-            loss += consistency_loss
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
             prec1 = accuracy(ema_output, target, topk=(1,))
             losses.update(loss.item(), input.shape[0])
             top1.update(prec1[0].item(), input.shape[0])
