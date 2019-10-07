@@ -2,6 +2,7 @@ import os
 import uuid
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import argparse
 import torchvision
 import tensorboardX
