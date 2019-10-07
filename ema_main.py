@@ -188,7 +188,7 @@ def train(train_loader, model, ema_model, criterion, optimizer, scheduler, epoch
     scheduler.step()
     return losses.avg, top1.avg
 
-def val(val_loader, model, criterion):
+def val(val_loader, model, ema_model, criterion):
     global args
     losses = AverageMeter()
     top1 = AverageMeter()
