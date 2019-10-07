@@ -194,7 +194,7 @@ def val(val_loader, model, ema_model, criterion):
     top1 = AverageMeter()
     model.eval()
     with torch.no_grad():
-        for index, (input, target) in enumerate(train_loader):
+        for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
             target = target.cuda(args.gpu)
 
