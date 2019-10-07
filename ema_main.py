@@ -8,6 +8,8 @@ import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
+import ramps
+
 parser = argparse.ArgumentParser(description='Selfie')
 parser.add_argument('--data', metavar='DIR',
                     help='path to dataset')
