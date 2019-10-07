@@ -93,7 +93,8 @@ def main():
     else:
         raise NotImplementedError
 
-    ema_model = model.copy()
+    ema_model = torchvision.models.resnet50(pretrained = True)
+    ema_model.fc = nn.Linear(131072, num_classes)
     for m in ema_model.parameters():
         m.detach_()
 
