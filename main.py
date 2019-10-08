@@ -94,7 +94,7 @@ def main():
 
     if args.load_weights is not None:
         state_dict = model.state_dict()
-        load_state_dict = torch.load(args.load_weights)['model_state']
+        load_state_dict = torch.load(args.load_weights)['P_state']
         state_dict.update(load_state_dict)
         model.load_state_dict(state_dict)
 
