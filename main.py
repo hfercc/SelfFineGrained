@@ -111,6 +111,7 @@ def main():
             state_dict.update(new_state_dict)
             model.load_state_dict(state_dict)
             del new_state_dict
+            del data_dict
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
         model = torch.nn.DataParallel(model)
