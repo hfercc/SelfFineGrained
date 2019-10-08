@@ -93,11 +93,23 @@ def main():
         raise NotImplementedError
 
     if args.load_weights is not None:
-        state_dict = model.state_dict()
-        load_state_dict = torch.load(args.load_weights)['P_state']
-        state_dict.update(load_state_dict)
-        model.load_state_dict(state_dict)
+        try:
+            state_dict = model.state_dict()
+            load_state_dict = torch.load(args.load_weights)['P_state']
+            state_dict.update(load_state_dict)
+            model.load_state_dict(state_dict)
 
+        except RuntimeError:
+            model_loaded = torch.load(args.load_weights)
+            data_dict = model_loaded['P_state']
+            state_dict = model.state_dict()
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in data_dict.items():
+                name = k[7:] # remove `module.`
+                new_state_dict[name] = v
+            state_dict.update(new_state_dict)
+            model.load_state_dict(state_dict)
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
         model = torch.nn.DataParallel(model)
