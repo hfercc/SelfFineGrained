@@ -89,7 +89,7 @@ def main():
         model.fc = nn.Linear(131072, num_classes)
     elif args.arch == 'resnet50v2':
         model = ResNet50(num_classes)
-        model.fc = nn.Linear(100352, num_classes)
+        model.linear = nn.Linear(100352, num_classes)
     else:
         raise NotImplementedError
 
