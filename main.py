@@ -2,6 +2,7 @@ import os
 import uuid
 import torch
 import torch.nn as nn
+from resnetv2 import ResNet50
 import argparse
 import torchvision
 import tensorboardX
@@ -40,6 +41,8 @@ parser.add_argument('--store-model-everyepoch', dest='store_model_everyepoch', a
                     help='store checkpoint in every epoch')
 parser.add_argument('--evaluation', action="store_true")
 parser.add_argument('--resume', action="store_true")
+
+parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
 
 def main():
@@ -84,8 +87,16 @@ def main():
     if args.arch == 'resnet50':
         model = torchvision.models.resnet50(pretrained = True)
         model.fc = nn.Linear(131072, num_classes)
+    elif args.arch == 'resnet50v2':
+        model = ResNet50(num_classes)
     else:
         raise NotImplementedError
+
+    if args.load_weights is not None:
+        state_dict = model.state_dict()
+        load_state_dict = torch.load(args.load_weights)['model_state']
+        state_dict.update(load_state_dict)
+        model.load_state_dict(state_dict)
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
@@ -107,7 +118,7 @@ def main():
         summary_writer.add_scalar("train_loss", trainObj, epoch)
         summary_writer.add_scalar("test_loss", valObj, epoch)
         summary_writer.add_scalar("train_acc", top1, epoch)
-        summary_writer.add_scalar("train_acc", prec1, epoch)
+        summary_writer.add_scalar("test_acc", prec1, epoch)
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
         if is_best:
