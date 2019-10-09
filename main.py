@@ -9,6 +9,8 @@ import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
+torch.backends.cudnn.benchmark = True
+
 parser = argparse.ArgumentParser(description='Selfie')
 parser.add_argument('--data', metavar='DIR',
                     help='path to dataset')
