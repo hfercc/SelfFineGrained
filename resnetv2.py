@@ -106,7 +106,7 @@ class ResNet(nn.Module):
         #print(out.shape)
         out = self.layer4(out)
         
-        out = self.avgpool2d(out, 8)
+        out = self.avgpool2d(out)
         out = torch.flatten(out, 1)
         out = self.linear(out)
         #print(out)
