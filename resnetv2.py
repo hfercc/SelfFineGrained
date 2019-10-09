@@ -59,7 +59,7 @@ class Bottleneck(nn.Module):
         if self.shortcut is None:
             out += x
         else:
-            out += self.shortcut(pre)
+            out += self.shortcut(identity)
         return out
 
 
