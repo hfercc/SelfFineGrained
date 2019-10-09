@@ -46,7 +46,7 @@ class Bottleneck(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
         self.bn0 = nn.BatchNorm2d(in_planes)
-        self.shortcut = nn.Sequential()
+        self.shortcut = None
         self.relu = nn.ReLU(inplace = True)
         if stride != 1 or in_planes != self.expansion*planes:
             self.shortcut = nn.Sequential(
@@ -59,8 +59,8 @@ class Bottleneck(nn.Module):
         out = self.relu(self.bn1(self.conv1(pre)))
         out = self.relu(self.bn2(self.conv2(out)))
         out = self.conv3(out)
-        if len(self.shortcut)==0:
-            out += self.shortcut(x)
+        if self.shortcut is not None:
+            out += x
         else:
             out += self.shortcut(pre)
         return out
