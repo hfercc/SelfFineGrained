@@ -100,7 +100,6 @@ class ResNet(nn.Module):
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
-        shortcut = None
         
         for stride in strides:
             if stride != 1 or self.in_planes != block.expansion * planes:
