@@ -90,10 +90,10 @@ class ResNet(nn.Module):
         layers = []
         for stride in strides:
             if stride != 1 or self.in_planes != block.expansion * planes:
-            shortcut = nn.Sequential(
-                nn.Conv2d(self.in_planes, block.expansion*planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(block.expansion*planes)
-            )
+                shortcut = nn.Sequential(
+                    nn.Conv2d(self.in_planes, block.expansion*planes, kernel_size=1, stride=stride, bias=False),
+                    nn.BatchNorm2d(block.expansion*planes)
+                )
             layers.append(block(self.in_planes, planes, stride, shortcut = shortcut))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
