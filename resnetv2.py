@@ -86,7 +86,7 @@ class ResNet(nn.Module):
         self.linear = nn.Linear(512*block.expansion, num_classes)
         self.relu = nn.ReLU(inplace = True)
         self.avgpool2d = nn.AdaptiveAvgPool2d((1,1))
-
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         def weights_init(m):
             if isinstance(m, nn.Conv2d):
                 torch.nn.init.xavier_uniform_(m.weight)
@@ -113,10 +113,10 @@ class ResNet(nn.Module):
     def forward(self, x):
         #print(self.conv1(x))
         out = self.relu(self.bn1(self.conv1(x)))
+        out = self.maxpool(out)
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
-        #print(out.shape)
         out = self.layer4(out)
         
         out = self.avgpool2d(out)
