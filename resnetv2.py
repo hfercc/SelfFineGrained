@@ -51,8 +51,9 @@ class Bottleneck(nn.Module):
         
 
     def forward(self, x):
-        pre = self.relu(self.bn0(x))
-        out = self.relu(self.bn1(self.conv1(pre)))
+        identity = x
+        out = self.relu(self.bn0(x))
+        out = self.relu(self.bn1(self.conv1(out)))
         out = self.relu(self.bn2(self.conv2(out)))
         out = self.conv3(out)
         if self.shortcut is None:
