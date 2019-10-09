@@ -37,22 +37,18 @@ class BasicBlock(nn.Module):
 
 class Bottleneck(nn.Module):
     expansion = 4
-
-    def __init__(self, in_planes, planes, stride=1):
+    __constants__ = ['shortcut']
+    def __init__(self, in_planes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
+        self.bn0 = nn.BatchNorm2d(in_planes)
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
         self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
-        self.bn0 = nn.BatchNorm2d(in_planes)
-        self.shortcut = None
+        self.shortcut = shortcut
         self.relu = nn.ReLU(inplace = True)
-        if stride != 1 or in_planes != self.expansion*planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
+        
 
     def forward(self, x):
         pre = self.relu(self.bn0(x))
@@ -93,7 +89,12 @@ class ResNet(nn.Module):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_planes, planes, stride))
+            if stride != 1 or self.in_planes != block.expansion * planes:
+            shortcut = nn.Sequential(
+                nn.Conv2d(self.in_planes, block.expansion*planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(block.expansion*planes)
+            )
+            layers.append(block(self.in_planes, planes, stride, shortcut = shortcut))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
