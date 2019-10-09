@@ -59,7 +59,7 @@ class Bottleneck(nn.Module):
         out = self.relu(self.bn1(self.conv1(pre)))
         out = self.relu(self.bn2(self.conv2(out)))
         out = self.conv3(out)
-        if self.shortcut is not None:
+        if self.shortcut is None:
             out += x
         else:
             out += self.shortcut(pre)
