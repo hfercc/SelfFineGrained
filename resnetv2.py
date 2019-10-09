@@ -65,8 +65,6 @@ class Bottleneck(nn.Module):
 
         out = self.conv3(out)
         if self.shortcut is not None:
-            print(x.shape)
-            print(self.shortcut)
             identity = self.shortcut(x)
         
         out += identity
