@@ -79,7 +79,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
         self.linear = nn.Linear(512*block.expansion, num_classes)
         self.relu = nn.ReLU(inplace = True)
-        self.avgpool2d = nn.AvgPool2d(7, stride = 1)
+        self.avgpool2d = nn.AdaptiveAvgPool2d((1,1))
 
         def weights_init(m):
             if isinstance(m, nn.Conv2d):
