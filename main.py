@@ -86,10 +86,10 @@ def main():
 
     if args.arch == 'resnet50':
         model = torchvision.models.resnet50(pretrained = True)
-        model.fc = nn.Sequential(nn.Linear(131072, 2048), nn.Linear(2048, num_classes))
+        model.fc = nn.Linear(2048, num_classes)
     elif args.arch == 'resnet50v2':
         model = ResNet50v2(num_classes)
-        model.linear = nn.Sequential(nn.Linear(100352, 2048), nn.Linear(2048, num_classes))
+        model.linear = nn.Linear(2048, num_classes)
     else:
         raise NotImplementedError
 
