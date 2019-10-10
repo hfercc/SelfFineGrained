@@ -111,6 +111,8 @@ def main():
             for k, v in data_dict.items():
                 name = k[7:] # remove `module.`
                 new_state_dict[name] = v
+            new_state_dict.pop('conv1.weight', None)
+            new_state_dict.pop('conv1.bias', None)
             state_dict.update(new_state_dict)
             model.load_state_dict(state_dict)
             del new_state_dict
