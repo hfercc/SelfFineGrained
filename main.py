@@ -149,12 +149,15 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         if args.with_rotation:
             rotation_input, rotation_target = rotation(input)
             output, rotation_output = model(input, rotation_input)
-            output = torch.cat([output, rotation_output], 0)
-            target = torch.cat([target, rotation_target])
         else:
             output, _ = model(input)
 
-        loss = criterion(output, target)
+        
+        if args.with_rotation:
+            loss = criterion(output, target) + \
+            criterion(rotation_output, rotation_target)
+        else:
+            loss = criterion(output, target)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
