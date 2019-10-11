@@ -83,9 +83,9 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
-        self.linear = nn.Linear(512*block.expansion, num_classes)
+        self.fc = nn.Linear(512*block.expansion, num_classes)
         self.relu = nn.ReLU(inplace = True)
-        self.avgpool2d = nn.AdaptiveAvgPool2d((1,1))
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         def weights_init(m):
             if isinstance(m, nn.Conv2d):
@@ -120,9 +120,9 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         
-        out = self.avgpool2d(out)
+        out = self.avgpool(out)
         out = torch.flatten(out, 1)
-        out = self.linear(out)
+        out = self.fc(out)
         #print(out)
         return out
 

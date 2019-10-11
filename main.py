@@ -2,12 +2,14 @@ import os
 import uuid
 import torch
 import torch.nn as nn
-from resnetv2 import ResNet50 as ResNet50v2
+import models
 import argparse
 import torchvision
 import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+
+from ss import rotation
 
 torch.backends.cudnn.benchmark = True
 
@@ -46,6 +48,7 @@ parser.add_argument('--resume', action="store_true")
 
 parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
+parser.add_argument('--with-rotation', action="store_true")
 
 def main():
     global args, best_prec1, summary_writer
@@ -86,37 +89,8 @@ def main():
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
-    if args.arch == 'resnet50':
-        model = torchvision.models.resnet50(pretrained = True)
-        model.fc = nn.Linear(2048, num_classes)
-    elif args.arch == 'resnet50v2':
-        model = ResNet50v2(num_classes)
-        model.linear = nn.Linear(2048, num_classes)
-    else:
-        raise NotImplementedError
+    model = models.Model(args, num_classes)
 
-    if args.load_weights is not None:
-        try:
-            state_dict = model.state_dict()
-            load_state_dict = torch.load(args.load_weights)['P_state']
-            state_dict.update(load_state_dict)
-            model.load_state_dict(state_dict)
-
-        except RuntimeError:
-            model_loaded = torch.load(args.load_weights)
-            data_dict = model_loaded['P_state']
-            state_dict = model.state_dict()
-            from collections import OrderedDict
-            new_state_dict = OrderedDict()
-            for k, v in data_dict.items():
-                name = k[7:] # remove `module.`
-                new_state_dict[name] = v
-            new_state_dict.pop('conv1.weight', None)
-            new_state_dict.pop('conv1.bias', None)
-            state_dict.update(new_state_dict)
-            model.load_state_dict(state_dict)
-            del new_state_dict
-            del data_dict
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
         model = torch.nn.DataParallel(model)
@@ -128,8 +102,8 @@ def main():
                                 momentum=0.9,
                                 weight_decay=args.weight_decay)
 
-    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [40, 60], 0.7)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
+    #scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [40, 60], 0.7)
     best_prec1 = 0
     for epoch in range(args.start_epoch, args.epochs):
         trainObj, top1 = train(train_loader, model, criterion, optimizer, scheduler, epoch)
@@ -172,8 +146,14 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
+        if args.with_rotation:
+            rotation_input, rotation_target = rotation(input)
+            output, rotation_output = model(input, rotation_input)
+            output = torch.cat([output, rotation_output], 1)
+            target = torch.cat([target, rotation_target])
+        else:
+            output, _ = model(input)
 
-        output = model(input)
         loss = criterion(output, target)
         optimizer.zero_grad()
         loss.backward()
