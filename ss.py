@@ -7,7 +7,7 @@ import numpy as np
 
 def rotation(input):
     choice = np.random.randint(4)
-    batch = input.size[0]
+    batch = input.shape[0]
     target = torch.ones(batch, device = input.device) * choice
     if choice == 0:
         image = input
