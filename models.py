@@ -5,7 +5,7 @@ import torch.nn as nn
 
 from resnetv2 import ResNet50 as resnet50v2
 
-def Model(nn.Module):
+class Model(nn.Module):
 
     def __init__(self, args, num_classes = 200):
 
