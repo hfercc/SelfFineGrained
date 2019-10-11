@@ -8,7 +8,7 @@ from resnetv2 import ResNet50 as resnet50v2
 class Model(nn.Module):
 
     def __init__(self, args, num_classes = 200):
-
+        super(Model, self).__init__()
         if args.arch == 'resnet50':
             self.feature = torchvision.models.resnet50(pretrained = True)
             self.fc = nn.Linear(2048, num_classes)
