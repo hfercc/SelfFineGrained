@@ -7,8 +7,11 @@ import numpy as np
 
 def rotation(input):
     batch = input.shape[0]
+    print(batch)
     target = torch.tensor([0,1,2,3] * int(batch / 4), device = input.device)
     target = target.long()
+    print(target.shape)
+    print(input.shape)
     for i in range(batch):
         input[i, :, :, :] = torch.rot90(input[i, :, :, :], target[i], [1, 2])
 
