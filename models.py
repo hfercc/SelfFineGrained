@@ -13,7 +13,7 @@ class Model(nn.Module):
             self.feature = torchvision.models.resnet50(pretrained = True)
             self.fc = nn.Linear(2048, num_classes)
         elif args.arch == 'resnet50v2':
-            self.feature = ResNet50v2(num_classes)
+            self.feature = resnet50v2(num_classes)
             self.fc = nn.Linear(2048, num_classes)
         else:
             raise NotImplementedError
