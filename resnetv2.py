@@ -144,9 +144,12 @@ def ResNet50(num_classes=10, pretrained = True):
         state_dict = load_state_dict_from_url(model_urls['resnet50'],
                                           progress=True)
         model_state_dict = model.state_dict()
+        index = []
         for k, v in state_dict.items():
             if 'bn' in k:
-                del state_dict[k]
+                index.append(k)
+        for i in index:
+            del state_dict[i]
         model.load_state_dict(state_dict)
 
 
