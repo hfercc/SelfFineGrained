@@ -6,6 +6,12 @@ import torch.nn.functional as F
 
 __all__ = ["ResNet18", "ResNet34", "ResNet50", "ResNet101", "ResNet152", "get_P_model", "Bottleneck", "ResNet"]
 
+model_urls = {
+    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
+}
+
+from torch.utils.model_zoo import load_url as load_state_dict_from_url
+
 class BasicBlock(nn.Module):
     expansion = 1
 
@@ -132,8 +138,13 @@ def ResNet18():
 def ResNet34():
     return ResNet(BasicBlock, [3,4,6,3])
 
-def ResNet50(num_classes=10):
-    return ResNet(Bottleneck, [3,4,6,3], num_classes = num_classes)
+def ResNet50(num_classes=10, pretrained = True):
+    model =  ResNet(Bottleneck, [3,4,6,3], num_classes = num_classes)
+    if pretrained:
+        state_dict = load_state_dict_from_url(model_urls['resnet50'],
+                                              progress=True)
+        model.load_state_dict(state_dict)
+    return model
 
 def ResNet101():
     return ResNet(Bottleneck, [3,4,23,3])
