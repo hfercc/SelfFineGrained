@@ -52,7 +52,7 @@ class Bottleneck(nn.Module):
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes)
         self.conv3 = nn.Conv2d(planes, self.expansion*planes, kernel_size=1, bias=False)
-        self.shortcut = shortcut
+        self.downsample = shortcut
         self.relu = nn.ReLU(inplace = True)
         
 
@@ -70,8 +70,8 @@ class Bottleneck(nn.Module):
         out = self.relu(out)
 
         out = self.conv3(out)
-        if self.shortcut is not None:
-            identity = self.shortcut(x)
+        if self.downsample is not None:
+            identity = self.downsample(x)
         
         out += identity
 
