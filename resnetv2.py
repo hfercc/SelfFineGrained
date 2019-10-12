@@ -142,8 +142,14 @@ def ResNet50(num_classes=10, pretrained = True):
     model =  ResNet(Bottleneck, [3,4,6,3], num_classes = num_classes)
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls['resnet50'],
-                                              progress=True)
+                                          progress=True)
+        model_state_dict = model.state_dict()
+        for k, v in state_dict.items():
+            if 'bn' in k:
+                del state_dict[k]
         model.load_state_dict(state_dict)
+
+
     return model
 
 def ResNet101():
