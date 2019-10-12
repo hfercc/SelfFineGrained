@@ -150,6 +150,8 @@ def ResNet50(num_classes=10, pretrained = True):
                 index.append(k)
         for i in index:
             del state_dict[i]
+        del state_dict['fc.weight']
+        del state_dict['fc.bias']
         model_state_dict.update(state_dict)
         model.load_state_dict(model_state_dict)
 
