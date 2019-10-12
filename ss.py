@@ -6,11 +6,11 @@ from torchvision.transforms.functional import rotate
 import numpy as np
 
 def rotation(input):
-    choice = np.random.randint(4)
     batch = input.shape[0]
-    target = torch.ones(batch, device = input.device) * choice
+    target = torch.cat([0,1,2,3] * int(batch / 4))
     target = target.long()
-    image = torch.rot90(input, choice, [2, 3])
+    for i in range(batch):
+        input[i, :, :, :] = torch.rot90(input[i, :, :, :], target[i], [1, 2])
 
-    return image, target
+    return input, target
 
