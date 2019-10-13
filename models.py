@@ -69,7 +69,7 @@ class Model(nn.Module):
         return x
 
     def rotation_layer4(self, x):
-        x = self.rotation_layer4(x)
+        x = self.rotation_layer4_(x)
         x = self.feature.avgpool(x)
         x = torch.flatten(x, 1)
         return x
