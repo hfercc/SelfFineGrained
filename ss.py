@@ -9,8 +9,10 @@ def rotation(input):
     batch = input.shape[0]
     target = torch.tensor(np.random.permutation([0,1,2,3] * int(batch / 4)), device = input.device)
     target = target.long()
+    image = torch.zeros_like(input)
+    image = image.copy_(input)
     for i in range(batch):
-        input[i, :, :, :] = torch.rot90(input[i, :, :, :], target[i], [1, 2])
+        image[i, :, :, :] = torch.rot90(input[i, :, :, :], target[i], [1, 2])
 
-    return input, target
+    return image, target
 
