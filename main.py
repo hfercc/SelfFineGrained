@@ -146,9 +146,9 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
+        input, rotation_target = rotation(input)
         if args.with_rotation:
-            rotation_input, rotation_target = rotation(input)
-            output, rotation_output = model(input, rotation_input)
+            output, rotation_output = model(input, input)
         else:
             output, _ = model(input)
 
