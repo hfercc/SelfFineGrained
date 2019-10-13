@@ -1,6 +1,7 @@
 import torch
 import torchvision
 
+import copy
 import torch.nn as nn
 
 from resnetv2 import ResNet50 as resnet50v2
@@ -19,8 +20,9 @@ class Model(nn.Module):
             raise NotImplementedError
 
         if args.with_rotation:
-            self.fc_rotation = nn.Linear(2048, 4)
-            self.with_rotation = True
+            self.rotation_fc = nn.Linear(2048, 4)
+        else:
+            self.rotation_fc = None
 
         if args.load_weights is not None:
             try:
@@ -45,6 +47,11 @@ class Model(nn.Module):
                 del new_state_dict
                 del data_dict
 
+        if args.seperate_layer4:
+            self.rotation_layer4_ = copy.deepcopy(self.feature.layer4)
+        else:
+            self.rotation_layer4_ = None
+
     def extract_feature(self, x):
         x = self.feature.conv1(x)
         x = self.feature.bn1(x)
@@ -53,20 +60,36 @@ class Model(nn.Module):
         x = self.feature.layer1(x)
         x = self.feature.layer2(x)
         x = self.feature.layer3(x)
+        return x
+
+    def layer4(self, x):
         x = self.feature.layer4(x)
         x = self.feature.avgpool(x)
         x = torch.flatten(x, 1)
-
         return x
 
-    def forward(self, x, rotation_input = None):
-        x = self.extract_feature(x)
-        x = self.fc(x)
-        if rotation_input is not None:
-            rotation_input = self.extract_feature(rotation_input)
-            rotation_input = self.fc_rotation(rotation_input)
+    def rotation_layer4(self, x):
+        x = self.rotation_layer4(x)
+        x = self.feature.avgpool(x)
+        x = torch.flatten(x, 1)
+        return x
 
-        return x, rotation_input
+
+    def forward(self, x, rotation_x = None):
+        x = self.extract_feature(x)
+        x = self.layer4(x)
+        x = self.fc(x)
+        if rotation_x is not None:
+            rotation_x = self.extract_feature(rotation_x)
+            if self.rotation_layer4_ is None:
+                rotation_x = self.layer4(rotation_x)
+            else:
+                rotation_x = self.rotation_layer4(rotation_x)
+
+            rotation_x = self.rotation_fc(rotation_x)
+
+
+        return x, rotation_x
 
 
         
