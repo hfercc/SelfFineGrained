@@ -65,7 +65,7 @@ def main():
         train_transforms = transforms.Compose([
             transforms.Resize(448),
             transforms.CenterCrop(448),
-            transforms.RandomHorizontalFlip(),
+            #transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
         ])
@@ -147,7 +147,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
-        #input, rotation_target = rotation(input)
+        input, rotation_target = rotation(input)
         if args.with_rotation:
             output, rotation_output = model(input, input)
         else:
