@@ -49,6 +49,7 @@ parser.add_argument('--resume', action="store_true")
 parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
 parser.add_argument('--with-rotation', action="store_true")
+parser.add_argument('--with-jigsaw', action="store_true")
 parser.add_argument('--seperate-layer4', action="store_true")
 
 def main():
