@@ -9,6 +9,7 @@ import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
+from utils import split_image
 from ss import rotation
 
 torch.backends.cudnn.benchmark = True
@@ -51,6 +52,7 @@ parser.add_argument('--task', type=str, default=uuid.uuid1())
 parser.add_argument('--with-rotation', action="store_true")
 parser.add_argument('--with-jigsaw', action="store_true")
 parser.add_argument('--seperate-layer4', action="store_true")
+parser.add_argument('--rotation-aug', action="store_true")
 
 def main():
     global args, best_prec1, summary_writer
@@ -67,7 +69,7 @@ def main():
             transforms.Resize(448),
             transforms.CenterCrop(448),
             #transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
+            #transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
             normalize,
         ])
@@ -152,8 +154,18 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     model.train()
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
+
+        splited_list = split_image(input, 4)
+
+        jigsaw_stacked = torch.cat(splited_list, 0).contiguous()
+
+
         target = target.cuda(args.gpu)
-        input, rotation_target = rotation(input)
+        if args.rotation_aug:
+            input, rotation_target = rotation(input)
+        elif args.with_rotation:
+            input, rotation_target = rotation(input)
+
         if args.with_rotation:
             output, rotation_output = model(input, input)
         else:

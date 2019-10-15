@@ -4,6 +4,8 @@ import torchvision
 import copy
 import torch.nn as nn
 
+from utils import split_image
+
 from resnetv2 import ResNet50 as resnet50v2
 
 class Model(nn.Module):
@@ -25,7 +27,9 @@ class Model(nn.Module):
             self.rotation_fc = None
 
         if args.with_jigsaw:
-            self.jigsaw_fc = nn.Linear(2048, 1000)
+            self.jigsaw_fc = nn.Sequential(
+                nn.Linear(4096, 2048),
+                nn.Linear(2048, 100))
         else:
             self.jigsaw_fc = None
 
@@ -83,8 +87,13 @@ class Model(nn.Module):
         x = torch.flatten(x, 1)
         return x
 
+    def jigsaw_layer4(self, x):
+        x = self.jigsaw_layer4_(x)
+        x = self.feature.avgpool(x)
+        x = torch.flatten(x, 1)
+        return x
 
-    def forward(self, x, rotation_x = None):
+    def forward(self, x, rotation_x = None, jigsaw_x = None):
         x = self.extract_feature(x)
         x = self.layer4(x)
         x = self.fc(x)
@@ -97,8 +106,18 @@ class Model(nn.Module):
 
             rotation_x = self.rotation_fc(rotation_x)
 
+        if jigsaw_x is not None:
+            jigsaw_x = self.extract_feature(jigsaw_x)
+            if self.jigsaw_layer4_ is None:
+                jigsaw_x = self.layer4(jigsaw_x)
+            else:
+                jigsaw_x = self.jigsaw_layer4(jigsaw_x)
 
-        return x, rotation_x
+            jigsaw_x = jigsaw_x.reshape(jigsaw_x.shape[0], -1)
+
+            jigsaw_x = self.jigsaw_fc(jigsaw_x)
+
+        return x, rotation_x, jigsaw_x
 
 
         
