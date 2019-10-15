@@ -157,7 +157,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
 
         splited_list = split_image(input, 4)
 
-        jigsaw_stacked = torch.cat(splited_list, 0).contiguous()
+        #jigsaw_stacked = torch.cat(splited_list, 0).contiguous()
 
 
         target = target.cuda(args.gpu)
