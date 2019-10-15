@@ -108,6 +108,10 @@ def main():
     #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [60, 150], 0.7)
     best_prec1 = 0
+
+    if not os.path.exists(os.path.join('models', str(args.task)):
+        os.mkdir(os.path.join('models', str(args.task))
+
     for epoch in range(args.start_epoch, args.epochs):
         trainObj, top1 = train(train_loader, model, criterion, optimizer, scheduler, epoch)
         valObj, prec1 = val(val_loader, model, criterion)
