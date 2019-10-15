@@ -167,9 +167,9 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             input, rotation_target = rotation(input)
 
         if args.with_rotation:
-            output, rotation_output = model(input, input)
+            output, rotation_output, _ = model(input, input)
         else:
-            output, _ = model(input)
+            output, _, _ = model(input)
 
         
         if args.with_rotation:
