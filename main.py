@@ -66,7 +66,7 @@ def main():
             transforms.Resize(448),
             transforms.CenterCrop(448),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip()
+            transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
             normalize,
         ])
