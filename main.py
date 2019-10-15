@@ -109,7 +109,7 @@ def main():
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [60, 150], 0.7)
     best_prec1 = 0
 
-    if not os.path.exists(os.path.join('models', str(args.task)):
+    if not os.path.exists(os.path.join('models', str(args.task))):
         os.mkdir(os.path.join('models', str(args.task))
 
     for epoch in range(args.start_epoch, args.epochs):
