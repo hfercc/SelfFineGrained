@@ -54,7 +54,7 @@ parser.add_argument('--seperate-layer4', action="store_true")
 def main():
     global args, best_prec1, summary_writer
     args = parser.parse_args()
-    summary_writer = tensorboardX.SummaryWriter(args.task)
+    summary_writer = tensorboardX.SummaryWriter(os.path.join('logs', args.task))
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
     print(args)
@@ -123,14 +123,14 @@ def main():
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(str(args.task), 'checkpoint.pth.tar'))
+                }, os.path.join('models', str(args.task), 'checkpoint.pth.tar'))
             torch.save(
                 {
                 'epoch': epoch,
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(str(args.task), 'model_best.pth.tar'))
+                }, os.path.join('models', str(args.task), 'model_best.pth.tar'))
         else:
             torch.save(
                 {
@@ -138,7 +138,7 @@ def main():
                 'model_state': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
-                }, os.path.join(str(args.task), 'checkpoint.pth.tar'))
+                }, os.path.join('models', str(args.task), 'checkpoint.pth.tar'))
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     global args

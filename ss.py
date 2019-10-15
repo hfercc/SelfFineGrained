@@ -15,4 +15,3 @@ def rotation(input):
         image[i, :, :, :] = torch.rot90(input[i, :, :, :], target[i], [1, 2])
 
     return image, target
-

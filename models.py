@@ -24,6 +24,11 @@ class Model(nn.Module):
         else:
             self.rotation_fc = None
 
+        if args.with_jigsaw:
+            self.jigsaw_fc = nn.Linear(2048, 1000)
+        else:
+            self.jigsaw_fc = None
+
         if args.load_weights is not None:
             try:
                 state_dict = model.state_dict()
@@ -49,8 +54,12 @@ class Model(nn.Module):
 
         if args.seperate_layer4:
             self.rotation_layer4_ = copy.deepcopy(self.feature.layer4)
+            self.jigsaw_layer4_ = copy.deepcopy(self.feature.layer4)
         else:
             self.rotation_layer4_ = None
+            self.jigsaw_layer4_ = None
+
+
 
     def extract_feature(self, x):
         x = self.feature.conv1(x)
