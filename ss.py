@@ -19,7 +19,7 @@ def rotation(input):
 class JigsawGenerator:
 
     def __init__(self, num_classes = 1000):
-        self.permutation = bp.load('permutation.npy')
+        self.permutation = np.load('permutation.npy')
 
     def __call__(self, x):
         # x: list
