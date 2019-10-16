@@ -55,9 +55,7 @@ parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
 
 def main():
-    global args, best_prec1, summary_writer, jigsaw
-
-    jigsaw = JigsawGenerator()
+    global args, best_prec1, summary_writer
     args = parser.parse_args()
     summary_writer = tensorboardX.SummaryWriter(os.path.join('logs', args.task))
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -186,7 +184,7 @@ def val(val_loader, model, criterion):
         for index, (input, _) in enumerate(val_loader):
             input = input.cuda(args.gpu)
             input, target = rotation(input)
-            
+
             output = model(input)
             loss = criterion(output, target)
 
