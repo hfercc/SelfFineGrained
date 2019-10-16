@@ -31,9 +31,9 @@ class JigsawGenerator:
             permed.append(x[i, self.permutation[target[i], :], ...].unsqueeze(0))
 
         permed = torch.cat(permed, 0)
-        permed = permed.device(x.device)
+        permed = permed.to(x.device)
         target = torch.from_numpy(target)
-        target = target.device(x.device)
+        target = target.to(x.device)
         return permed, target
 
 
