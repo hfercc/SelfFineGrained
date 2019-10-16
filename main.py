@@ -55,7 +55,7 @@ parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
 
 def main():
-    global args, best_prec1, summary_writer
+    global args, best_prec1, summary_writer, jigsaw
 
     jigsaw = JigsawGenerator()
     args = parser.parse_args()
