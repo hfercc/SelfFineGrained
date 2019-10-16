@@ -39,7 +39,7 @@ class JigsawGenerator:
 
 def generate_permutation(num):
 
-    perm = np.zeros(num, 9)
+    perm = np.zeros((num, 9))
     for i in range(num):
         perm[i, :] = np.random.permutation(9)
 
