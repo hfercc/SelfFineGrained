@@ -203,7 +203,7 @@ def val(val_loader, model, criterion):
             input = input.cuda(args.gpu)
             target = target.cuda(args.gpu)
 
-            output, _ = model(input)
+            output, _, _ = model(input)
             loss = criterion(output, target)
 
             prec1 = accuracy(output, target, topk=(1,))
