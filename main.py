@@ -179,7 +179,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         if args.with_rotation:
             loss = loss + criterion(rotation_output, rotation_target)
         if args.with_jigsaw:
-            loss = criterion(jigsaw_output, jigsaw_target)
+            loss = loss + criterion(jigsaw_output, jigsaw_target)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
