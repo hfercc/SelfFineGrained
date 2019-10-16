@@ -113,7 +113,7 @@ class Model(nn.Module):
             else:
                 jigsaw_x = self.jigsaw_layer4(jigsaw_x)
 
-            jigsaw_x = jigsaw_x.reshape(jigsaw_x.shape[0], -1)
+            jigsaw_x = jigsaw_x.reshape(x.shape[0], -1)
 
             jigsaw_x = self.jigsaw_fc(jigsaw_x)
 
