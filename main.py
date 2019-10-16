@@ -160,6 +160,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         if args.with_jigsaw:
             splited_list = split_image(input, 112)
             splited_list = [i.unsqueeze(1) for i in splited_list]
+            jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
             jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
             jigsaw_stacked = torch.cat(splited_list, 0).contiguous()
 
