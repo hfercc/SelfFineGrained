@@ -43,4 +43,4 @@ def generate_permutation(num):
     for i in range(num):
         perm[i, :] = np.random.permutation(9)
 
-    np.save(perm, 'permutation.npy')
+    np.save('permutation.npy', perm)
