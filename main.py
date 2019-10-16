@@ -157,6 +157,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
         jigsaw_stacked = None
+        rotation_input = None
         if args.with_jigsaw:
             splited_list = split_image(input, 112)
             splited_list = [i.unsqueeze(1) for i in splited_list]
@@ -168,8 +169,10 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         if args.rotation_aug or args.with_rotation:
             input, rotation_target = rotation(input)
 
-        
-        output, rotation_output, jigsaw_output = model(input, input, jigsaw_stacked)
+        if args.with_rotation:
+            rotation_input = input
+            
+        output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked)
 
         loss = criterion(output, target)
         
