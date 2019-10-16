@@ -54,6 +54,12 @@ parser.add_argument('--with-jigsaw', action="store_true")
 parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
 
+
+class fake:
+    def step():
+        pass
+
+
 def main():
     global args, best_prec1, summary_writer
     args = parser.parse_args()
@@ -116,6 +122,7 @@ def main():
 
     for epoch in range(args.start_epoch, args.epochs):
         trainObj, top1 = train(train_loader, model, criterion, optimizer, scheduler, epoch)
+        _, _ = train(val_loader, model, criterion, optimizer, fake, epoch)
         valObj, prec1 = val(val_loader, model, criterion)
         summary_writer.add_scalar("train_loss", trainObj, epoch)
         summary_writer.add_scalar("test_loss", valObj, epoch)
