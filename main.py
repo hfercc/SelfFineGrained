@@ -10,7 +10,7 @@ import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
 from utils import split_image
-from ss import rotation
+from ss import rotation, JigsawGenerator
 
 torch.backends.cudnn.benchmark = True
 
@@ -56,6 +56,8 @@ parser.add_argument('--rotation-aug', action="store_true")
 
 def main():
     global args, best_prec1, summary_writer
+
+    jigsaw = JigsawGenerator()
     args = parser.parse_args()
     summary_writer = tensorboardX.SummaryWriter(os.path.join('logs', args.task))
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -68,8 +70,8 @@ def main():
         train_transforms = transforms.Compose([
             transforms.Resize(448),
             transforms.CenterCrop(448),
-            transforms.RandomHorizontalFlip(),
-            #transforms.RandomVerticalFlip(),
+            #transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
             normalize,
         ])
@@ -154,29 +156,26 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     model.train()
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
-
-        splited_list = split_image(input, 4)
-
-        #jigsaw_stacked = torch.cat(splited_list, 0).contiguous()
-
+        jigsaw_stacked = None
+        if args.with_jigsaw:
+            splited_list = split_image(input, 4)
+            splited_list = [i.unsqueeze(1) for i in splited_list]
+            jigsaw_stacked = torch.cat(splited_list, 0).contiguous()
+            jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
 
         target = target.cuda(args.gpu)
-        if args.rotation_aug:
+        if args.rotation_aug or args.with_rotation:
             input, rotation_target = rotation(input)
-        elif args.with_rotation:
-            input, rotation_target = rotation(input)
-
-        if args.with_rotation:
-            output, rotation_output, _ = model(input, input)
-        else:
-            output, _, _ = model(input)
 
         
+        output, rotation_output, jigsaw_output = model(input, input, jigsaw_stacked)
+
+        loss = criterion(output, target)
+        
         if args.with_rotation:
-            loss = criterion(output, target) + \
-            criterion(rotation_output, rotation_target)
-        else:
-            loss = criterion(output, target)
+            loss = loss + criterion(rotation_output, rotation_target)
+        if args.with_jigsaw:
+            loss = criterion(jigsaw_output, jigsaw_target)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
