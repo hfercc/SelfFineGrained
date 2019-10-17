@@ -103,7 +103,7 @@ def main():
     model = torchvision.models.resnet50(pretrained = False)
     model.fc = nn.Sequential(
                 nn.Linear(2048 * 16, 2048),
-                nn.Linear(2048, 1000))
+                nn.Linear(2048, 30))
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
