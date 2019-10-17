@@ -149,7 +149,7 @@ class SelfEnsembleModel(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.gate = None # Initialize in forward()
-        
+
         for i in self.branches:
             i.cuda()
 
@@ -169,7 +169,7 @@ class SelfEnsembleModel(nn.Module):
             self.gate = nn.Parameter(torch.ones(self.num_of_branches).cuda(self.args.gpu) * 1.0 / self.num_of_branches)
 
         for i in range(self.num_of_branches):
-            feature_map = self.branches[i](x[i]).unsqueeze(-1)
+            feature_map = self.branches[i](x[i]).unsqueeze(0)
             feature_maps.append(feature_map * self.gate[i])
         feature_maps = torch.sum(torch.cat(feature_maps, 0), 0)
 
