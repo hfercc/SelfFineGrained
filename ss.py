@@ -20,12 +20,13 @@ class JigsawGenerator:
 
     def __init__(self, num_classes = 1000):
         self.permutation = np.load('permutation.npy')
+        self.num_classes = num_classes
 
     def __call__(self, x):
         # x: list
         batch_size = x.shape[0]
         permed = []
-        target = np.random.permutation(1000)[:batch_size]
+        target = np.random.permutation(self.num_classes)[:batch_size]
         for i in range(batch_size):
             permed.append(x[i, self.permutation[target[i], :], ...].unsqueeze(0))
 
