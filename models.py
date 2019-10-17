@@ -118,6 +118,69 @@ class Model(nn.Module):
 
         return x, rotation_x, jigsaw_x
 
+def split_resnet50(model):
+    return nn.Sequential(
+        model.conv1(x)
+        model.bn1(x)
+        model.relu(x)
+        model.maxpool(x)
+        model.layer1(x)
+        model.layer2(x)
+        model.layer3(x)
+    )
+
+
+class SelfEnsembleModel(nn.Module):
+
+    def __init__(self, args, num_of_branches, num_classes = 200):
+
+        super(SelfEnsembleModel, self).__init__()
+        self.num_of_branches = num_of_branches
+
+
+        if args.arch == 'resnet50v1':
+            self.branches = [split_resnet50(torchvision.models.resnet50(pretrained = False)) for _ in range(num_of_branches)]
+            self.layer4 = torchvision.models.resnet50(pretrained = True).layer4 
+            self.fc = nn.Linear(2048, num_classes)
+        elif args.arch == 'resnet50v2':
+            self.branches = [split_resnet50(resnet50v2()) for _ in range(num_of_branches)]
+            self.layer4 = resnet50v2().layer4 
+            self.fc = nn.Linear(2048, num_classes)
+
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.gate = None # Initialize in forward()
+
+
+    def _load(self, files):
+        for i in range(self.num_of_branches):
+            state_dict = self.branches[i].state_dict()
+            new_state_dict = torch.load(files[i])
+            state_dict.update(new_state_dict)
+            self.branches[i].load_state_dict(state_dict)
+
+    def forward(self, x):
+        # x: List
+        feature_maps = []
+        
+        if self.gate is None:
+            self.gate = nn.Parameter(torch.ones(self.num_of_branches).at(x[0].device) * 1.0 / self.num_of_branches)
+
+        for i in range(self.num_of_branches):
+            feature_map = self.branches[i](x[i]).unsqueeze(-1)
+            feature_maps.append(feature_map * self.gate[i])
+        feature_maps = torch.sum(torch.cat(feature_maps, 0), 0)
+
+        feature_maps = self.layer4(feature_maps)
+        feature_maps = self.avgpool(feature_maps)
+        feature_maps = torch.flatten(feature_maps, 1)
+
+        feature_maps = self.fc(feature_maps)
+
+        return feature_maps
+
+
+
+        
 
         
 
