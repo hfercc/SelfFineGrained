@@ -54,6 +54,8 @@ parser.add_argument('--with-jigsaw', action="store_true")
 parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
 
+parser.add_argument('--self-ensemble', action="store_true")
+
 def main():
     global args, best_prec1, summary_writer, jigsaw
 
@@ -96,7 +98,10 @@ def main():
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True, drop_last = True)
 
-    model = models.Model(args, num_classes)
+    if not args.self_ensemble:
+        model = models.Model(args, num_classes)
+    else:
+        model = models.SelfEnsembleModel(args, 3)
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
@@ -117,8 +122,12 @@ def main():
         os.mkdir(os.path.join('models', str(args.task)))
 
     for epoch in range(args.start_epoch, args.epochs):
-        trainObj, top1 = train(train_loader, model, criterion, optimizer, scheduler, epoch)
-        valObj, prec1 = val(val_loader, model, criterion)
+        if not args.self_ensemble:
+            trainObj, top1 = train(train_loader, model, criterion, optimizer, scheduler, epoch)
+            valObj, prec1 = val(val_loader, model, criterion)
+        else:
+            trainObj, top1 = ensemble_train(train_loader, model, criterion, optimizer, scheduler, epoch)
+            valObj, prec1 = ensemble_val(val_loader, model, criterion)
         summary_writer.add_scalar("train_loss", trainObj, epoch)
         summary_writer.add_scalar("test_loss", valObj, epoch)
         summary_writer.add_scalar("train_acc", top1, epoch)
@@ -148,6 +157,58 @@ def main():
                 'optimizer': optimizer.state_dict(),
                 'best_prec1': best_prec1,
                 }, os.path.join('models', str(args.task), 'checkpoint.pth.tar'))
+
+def ensemble_train(train_loader, model, criterion, optimizer, scheduler, epoch):
+    global args
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    model.train()
+    for index, (input, target) in enumerate(train_loader):
+        input = input.cuda(args.gpu)
+        target = target.cuda(args.gpu)
+            
+        output = model([input] * 3)
+
+        loss = criterion(output, target)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        prec1 = accuracy(output, target, topk=(1,))
+        losses.update(loss.item(), input.shape[0])
+        top1.update(prec1[0].item(), input.shape[0])
+
+        if index % args.print_freq == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
+                   epoch, index, len(train_loader), loss=losses, top1=top1))
+    scheduler.step()
+    return losses.avg, top1.avg
+
+def ensemble_val(val_loader, model, criterion):
+    global args
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    model.eval()
+    with torch.no_grad():
+        for index, (input, target) in enumerate(val_loader):
+            input = input.cuda(args.gpu)
+            target = target.cuda(args.gpu)
+
+            output = model([input] * 3)
+            loss = criterion(output, target)
+
+            prec1 = accuracy(output, target, topk=(1,))
+            losses.update(loss.item(), input.shape[0])
+            top1.update(prec1[0].item(), input.shape[0])
+
+            if index % args.print_freq == 0:
+                print('Epoch: [{0}/{1}]\t'
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
+                       index, len(val_loader), loss=losses, top1=top1))
+
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     global args
