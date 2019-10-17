@@ -136,7 +136,7 @@ class SelfEnsembleModel(nn.Module):
 
         super(SelfEnsembleModel, self).__init__()
         self.num_of_branches = num_of_branches
-
+        self.args = args
 
         if args.arch == 'resnet50v1':
             self.branches = [split_resnet50(torchvision.models.resnet50(pretrained = False)) for _ in range(num_of_branches)]
@@ -163,7 +163,7 @@ class SelfEnsembleModel(nn.Module):
         feature_maps = []
         
         if self.gate is None:
-            self.gate = nn.Parameter(torch.ones(self.num_of_branches).at(x[0].device) * 1.0 / self.num_of_branches)
+            self.gate = nn.Parameter(torch.ones(self.num_of_branches).cuda(self.args.gpu) * 1.0 / self.num_of_branches)
 
         for i in range(self.num_of_branches):
             feature_map = self.branches[i](x[i]).unsqueeze(-1)
