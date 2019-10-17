@@ -120,13 +120,13 @@ class Model(nn.Module):
 
 def split_resnet50(model):
     return nn.Sequential(
-        model.conv1(x),
-        model.bn1(x),
-        model.relu(x),
-        model.maxpool(x),
-        model.layer1(x),
-        model.layer2(x),
-        model.layer3(x)
+        model.conv1,
+        model.bn1,
+        model.relu,
+        model.maxpool,
+        model.layer1,
+        model.layer2,
+        model.layer3
     )
 
 
