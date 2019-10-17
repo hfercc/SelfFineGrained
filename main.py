@@ -209,6 +209,7 @@ def ensemble_val(val_loader, model, criterion):
                       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
                        index, len(val_loader), loss=losses, top1=top1))
 
+    return losses.avg, top1.avg
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     global args
