@@ -149,6 +149,9 @@ class SelfEnsembleModel(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.gate = None # Initialize in forward()
+        
+        for i in self.branches:
+            i.cuda()
 
 
     def _load(self, files):
