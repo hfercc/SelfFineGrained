@@ -139,7 +139,7 @@ class SelfEnsembleModel(nn.Module):
         self.args = args
 
         if args.arch == 'resnet50v1':
-            self.branches = [split_resnet50(torchvision.models.resnet50(pretrained = False)) for _ in range(num_of_branches)]
+            self.branches = [split_resnet50(torchvision.models.resnet50(pretrained = True)) for _ in range(num_of_branches)]
             self.layer4 = torchvision.models.resnet50(pretrained = True).layer4 
             self.fc = nn.Linear(2048, num_classes)
         elif args.arch == 'resnet50v2':
