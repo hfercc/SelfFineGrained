@@ -61,7 +61,7 @@ class fake:
 def main():
     global args, best_prec1, summary_writer, jigsaw
 
-    jigsaw = JigsawGenerator()
+    jigsaw = JigsawGenerator(30)
     args = parser.parse_args()
     summary_writer = tensorboardX.SummaryWriter(os.path.join('logs', args.task))
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
