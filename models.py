@@ -168,6 +168,7 @@ class SelfEnsembleModel(nn.Module):
         if self.gate is None:
             self.gate = nn.Parameter(torch.ones(self.num_of_branches).cuda(self.args.gpu) * 1.0 / self.num_of_branches)
 
+        print(self.gate)
         for i in range(self.num_of_branches):
             feature_map = self.branches[i](x[i]).unsqueeze(0)
             feature_maps.append(feature_map * self.gate[i])
