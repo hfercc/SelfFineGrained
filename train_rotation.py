@@ -74,8 +74,6 @@ def main():
         train_transforms = transforms.Compose([
             transforms.Resize(448),
             transforms.CenterCrop(448),
-            #transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
             normalize,
         ])
@@ -88,6 +86,9 @@ def main():
         num_classes = 200
         train_dataset = datasets.ImageFolder(traindir, train_transforms)
         val_dataset = datasets.ImageFolder(valdir, val_transforms)
+    elif args.dataset == 'cifar':
+        pass
+        #datasets.CIFAR10(args.data, )
     else:
         raise NotImplementedError
 
@@ -101,6 +102,7 @@ def main():
         num_workers=args.workers, pin_memory=True, drop_last = True)
 
     model = torchvision.models.resnet50(pretrained = False)
+    if 
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:

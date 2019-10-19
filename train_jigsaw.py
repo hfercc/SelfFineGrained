@@ -74,8 +74,6 @@ def main():
         train_transforms = transforms.Compose([
             transforms.Resize(448),
             transforms.CenterCrop(448),
-            #transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
             normalize,
         ])
