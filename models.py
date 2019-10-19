@@ -32,7 +32,7 @@ class Model(nn.Module):
         if args.with_jigsaw:
             self.jigsaw_fc = nn.Sequential(
                 nn.Linear(2048 * 16, 2048),
-                nn.Linear(2048, 1000))
+                nn.Linear(2048, 30))
         else:
             self.jigsaw_fc = None
 
