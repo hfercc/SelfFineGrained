@@ -12,7 +12,7 @@ def split_image(image, N):
     return batches
 
 def combine_image(image, N):
-
+    print(image.shape)
     batches = torch.split(image, N * N, 1)
     print(len(batches))
     s = []
