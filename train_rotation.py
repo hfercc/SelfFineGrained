@@ -95,8 +95,8 @@ def main():
             transforms.ToTensor(),
             normalize,
         ])
-        train_dataset = datasets.CIFAR10(args.data, True, train_transforms)
-        val_dataset   = datasets.CIFAR10(args.data, False, val_transforms)
+        train_dataset = datasets.CIFAR10(args.data, True, train_transforms, download = True)
+        val_dataset   = datasets.CIFAR10(args.data, False, val_transforms, download = True)
     else:
         raise NotImplementedError
 
@@ -112,7 +112,7 @@ def main():
     model = torchvision.models.resnet50(pretrained = False)
     if args.dataset == 'cifar':
         model.conv1 = self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
-    
+
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
         model = torch.nn.DataParallel(model)
