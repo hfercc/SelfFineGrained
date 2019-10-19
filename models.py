@@ -18,16 +18,11 @@ class Model(nn.Module):
         elif args.arch == 'resnet50v2':
             self.feature = resnet50v2(num_classes)
             self.fc = nn.Linear(2048, num_classes)
-        elif args.arch == 'cifarv1':
-            self.feature = torchvision.models.resnet50(pretrained = True)
-            self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
-            self.fc = nn.Linear(2048, num_classes)
-        elif args.arch == 'cifarv2':
-            self.feature = resnet50v2(num_classes)
-            self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
-            self.fc = nn.Linear(2048, num_classes)
         else:
             raise NotImplementedError
+
+        if args.dataset == 'cifar':
+            model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
 
         if args.with_rotation:
             self.rotation_fc = nn.Linear(2048, 4)
@@ -154,6 +149,7 @@ class SelfEnsembleModel(nn.Module):
             self.branches = [split_resnet50(resnet50v2()) for _ in range(num_of_branches)]
             self.layer4 = resnet50v2().layer4 
             self.fc = nn.Linear(2048, num_classes)
+        
 
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.gate = None # Initialize in forward()
