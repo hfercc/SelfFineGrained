@@ -26,7 +26,13 @@ class JigsawGenerator:
         # x: list
         batch_size = x.shape[0]
         permed = []
-        target = np.random.permutation(self.num_classes)[:batch_size]
+        if batch_size > self.num_classes:
+            target = list(range(self.num_classes)) * int(batch_size / self.num_classes)
+            target = np.array(target)
+            target = target[np.random.permutation(batch_size)]
+        else:
+            target = np.random.permutation(self.num_classes)[:batch_size]
+
         for i in range(batch_size):
             permed.append(x[i, self.permutation[target[i], :], ...].unsqueeze(0))
 
