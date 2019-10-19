@@ -111,7 +111,7 @@ def main():
 
     model = torchvision.models.resnet50(pretrained = False)
     if args.dataset == 'cifar':
-        model.conv1 = self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
+        model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
     
     model.fc = nn.Sequential(
                 nn.Linear(2048 * 16, 2048),
