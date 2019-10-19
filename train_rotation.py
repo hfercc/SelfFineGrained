@@ -102,7 +102,6 @@ def main():
         num_workers=args.workers, pin_memory=True, drop_last = True)
 
     model = torchvision.models.resnet50(pretrained = False)
-    if 
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
