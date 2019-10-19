@@ -51,6 +51,7 @@ parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
 parser.add_argument('--with-rotation', action="store_true")
 parser.add_argument('--with-jigsaw', action="store_true")
+parser.add_argument('--ignore-classification', action="store_true")
 parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
 
@@ -228,16 +229,20 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             jigsaw_stacked = torch.cat(splited_list, 0).contiguous().squeeze(1)
 
         target = target.cuda(args.gpu)
-        if args.rotation_aug or args.with_rotation:
-            input, rotation_target = rotation(input)
 
         if args.with_rotation:
             rotation_input = input
+            rotation_input, rotation_target = rotation(input)
+
+        if args.rotation_aug:
+            input = rotation_input
             
         output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked)
+        if not args.ignore_classification:
+            loss = criterion(output, target)
+        else:
+            loss = 0
 
-        loss = criterion(output, target)
-        
         if args.with_rotation:
             loss = loss + criterion(rotation_output, rotation_target)
         if args.with_jigsaw:
@@ -266,10 +271,30 @@ def val(val_loader, model, criterion):
     with torch.no_grad():
         for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
+            jigsaw_stacked = None
+            rotation_input = None
+            if args.with_jigsaw:
+                splited_list = split_image(input, 112)
+                splited_list = [i.unsqueeze(1) for i in splited_list]
+                jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
+                jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
+                jigsaw_stacked = torch.cat(splited_list, 0).contiguous().squeeze(1)
+
             target = target.cuda(args.gpu)
 
-            output, _, _ = model(input)
-            loss = criterion(output, target)
+            if args.with_rotation:
+                rotation_input = input
+                rotation_input, rotation_target = rotation(input)
+
+            if args.rotation_aug:
+                input = rotation_input
+                target = target.cuda(args.gpu)
+
+            output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked)
+            if not args.ignore_classification:
+                loss = criterion(output, target)
+            else:
+                loss = 0   
 
             prec1 = accuracy(output, target, topk=(1,))
             losses.update(loss.item(), input.shape[0])
