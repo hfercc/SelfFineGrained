@@ -14,7 +14,7 @@ def split_image(image, N):
 def combine_image(image, N):
     print(image.shape)
     batches = torch.split(image, 1, 1)
-    print(len(batches))
+    batches = list(map(lambda x: x.squeeze(1), batches))
     s = []
     for i in range(N):
         s.append(torch.cat(batches[(i*N):((i + 1) * N - 1)], 3))
