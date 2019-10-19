@@ -9,7 +9,7 @@ import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
-from utils import split_image
+from utils import split_image, combine_image
 from ss import rotation, JigsawGenerator
 
 torch.backends.cudnn.benchmark = True
@@ -114,8 +114,8 @@ def main():
         model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
     
     model.fc = nn.Sequential(
-                nn.Linear(2048 * 16, 2048),
-                nn.Linear(2048, 30))
+                nn.Linear(2048, 30)
+            )
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
@@ -181,22 +181,11 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         elif args.dataset == 'cifar':
             splited_list = split_image(input, 8)
         splited_list = [i.unsqueeze(1) for i in splited_list]
-        jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
-        jigsaw_stacked, target = jigsaw(jigsaw_stacked)
-        jigsaw_stacked = torch.cat(splited_list, 0).contiguous().squeeze(1)
-
         
-        jigsaw_stacked = model.conv1(jigsaw_stacked)
-        jigsaw_stacked = model.bn1(jigsaw_stacked)
-        jigsaw_stacked = model.relu(jigsaw_stacked)
-        jigsaw_stacked = model.maxpool(jigsaw_stacked)
-        jigsaw_stacked = model.layer1(jigsaw_stacked)
-        jigsaw_stacked = model.layer2(jigsaw_stacked)
-        jigsaw_stacked = model.layer3(jigsaw_stacked)
-        jigsaw_stacked = model.layer4(jigsaw_stacked)
-        jigsaw_stacked = model.avgpool(jigsaw_stacked)
-        jigsaw_stacked = jigsaw_stacked.view(input.shape[0], -1)
-        output = model.fc(jigsaw_stacked)
+        jigsaw_stacked, target = jigsaw(jigsaw_stacked)
+        jigsaw_stacked = combine_image(jigsaw_stacked, 4)
+
+        output = model(jigsaw_stacked)
 
         loss = criterion(output, target)
         
@@ -224,24 +213,16 @@ def val(val_loader, model, criterion):
     with torch.no_grad():
         for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
-            splited_list = split_image(input, 112)
+            if args.dataset == 'CUB':
+                splited_list = split_image(input, 112)
+            elif args.dataset == 'cifar':
+                splited_list = split_image(input, 8)
             splited_list = [i.unsqueeze(1) for i in splited_list]
-            jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
-            jigsaw_stacked, target = jigsaw(jigsaw_stacked)
-            jigsaw_stacked = torch.cat(splited_list, 0).contiguous().squeeze(1)
-
             
-            jigsaw_stacked = model.conv1(jigsaw_stacked)
-            jigsaw_stacked = model.bn1(jigsaw_stacked)
-            jigsaw_stacked = model.relu(jigsaw_stacked)
-            jigsaw_stacked = model.maxpool(jigsaw_stacked)
-            jigsaw_stacked = model.layer1(jigsaw_stacked)
-            jigsaw_stacked = model.layer2(jigsaw_stacked)
-            jigsaw_stacked = model.layer3(jigsaw_stacked)
-            jigsaw_stacked = model.layer4(jigsaw_stacked)
-            jigsaw_stacked = model.avgpool(jigsaw_stacked)
-            jigsaw_stacked = jigsaw_stacked.view(input.shape[0], -1)
-            output = model.fc(jigsaw_stacked)
+            jigsaw_stacked, target = jigsaw(jigsaw_stacked)
+            jigsaw_stacked = combine_image(jigsaw_stacked, 4)
+
+            output = model(jigsaw_stacked)
             loss = criterion(output, target)
 
             prec1 = accuracy(output, target, topk=(1,))

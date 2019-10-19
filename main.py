@@ -87,6 +87,18 @@ def main():
         num_classes = 200
         train_dataset = datasets.ImageFolder(traindir, train_transforms)
         val_dataset = datasets.ImageFolder(valdir, val_transforms)
+    elif args.dataset == 'cifar':
+        train_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+        val_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+        train_dataset = datasets.CIFAR10(args.data, True, train_transforms)
+        val_dataset   = datasets.CIFAR10(args.data, False, val_transforms)
+        num_classes = 10
     else:
         raise NotImplementedError
 
