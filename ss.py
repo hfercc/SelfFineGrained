@@ -27,7 +27,7 @@ class JigsawGenerator:
         batch_size = x.shape[0]
         permed = []
         if batch_size > self.num_classes:
-            target = list(range(self.num_classes)) * int(batch_size / self.num_classes)
+            target = list(range(self.num_classes)) * (int(batch_size / self.num_classes) + 1)
             target = np.array(target)
             target = target[np.random.permutation(batch_size)]
         else:
