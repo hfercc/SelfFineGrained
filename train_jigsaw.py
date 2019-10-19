@@ -176,7 +176,10 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     model.train()
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
-        splited_list = split_image(input, 112)
+        if args.dataset == 'CUB':
+            splited_list = split_image(input, 112)
+        elif args.dataset == 'cifar':
+            splited_list = split_image(input, 8)
         splited_list = [i.unsqueeze(1) for i in splited_list]
         jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
         jigsaw_stacked, target = jigsaw(jigsaw_stacked)
