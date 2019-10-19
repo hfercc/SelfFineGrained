@@ -40,8 +40,8 @@ class JigsawGenerator:
 
 def generate_permutation(num):
 
-    perm = np.zeros((num, 9))
+    perm = np.zeros((num, 16))
     for i in range(num):
-        perm[i, :] = np.random.permutation(9)
+        perm[i, :] = np.random.permutation(16)
 
     np.save('permutation.npy', perm)
