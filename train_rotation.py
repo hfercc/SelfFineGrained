@@ -87,8 +87,16 @@ def main():
         train_dataset = datasets.ImageFolder(traindir, train_transforms)
         val_dataset = datasets.ImageFolder(valdir, val_transforms)
     elif args.dataset == 'cifar':
-        pass
-        #datasets.CIFAR10(args.data, )
+        train_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+        val_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+        train_dataset = datasets.CIFAR10(args.data, True, train_transforms)
+        val_dataset   = datasets.CIFAR10(args.data, False, val_transforms)
     else:
         raise NotImplementedError
 
@@ -102,7 +110,9 @@ def main():
         num_workers=args.workers, pin_memory=True, drop_last = True)
 
     model = torchvision.models.resnet50(pretrained = False)
-
+    if args.dataset == 'cifar':
+        model.conv1 = self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
+    
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
         model = torch.nn.DataParallel(model)
