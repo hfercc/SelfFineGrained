@@ -91,6 +91,7 @@ class Model(nn.Module):
     def jigsaw_layer4(self, x):
         x = self.jigsaw_layer4_(x)
         x = self.feature.avgpool(x)
+        x = torch.flatten(x, 1)
         return x
 
     def forward(self, x, rotation_x = None, jigsaw_x = None):
