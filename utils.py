@@ -48,5 +48,4 @@ def get_index(input):
     seq = np.random.permutation(total)
     t = seq[:(total // 4)]
     v = seq[(total // 4):]
-    v = torch.from_numpy(v).cuda(args.gpu)
     return t, v, batches

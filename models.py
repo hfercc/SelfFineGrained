@@ -140,6 +140,7 @@ class Model(nn.Module):
         if selfie_x is not None:
             batches, v, t = selfie_x
             pos = t
+            v = torch.from_numpy(v).cuda(args.gpu)
             t = torch.from_numpy(np.array(pos)).cuda(args.gpu)
 
 
