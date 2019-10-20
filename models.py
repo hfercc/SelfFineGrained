@@ -152,11 +152,11 @@ class Model(nn.Module):
 
             input_encoder = torch.split(input_encoder, 1, 1)
             input_encoder = list(map(lambda x: x.squeeze(1), input_encoder))
-            input_encoder = torh.cat(input_encoder, 0)
+            input_encoder = torch.cat(input_encoder, 0)
 
             input_decoder = torch.split(input_decoder, 1, 1)
             input_decoder = list(map(lambda x: x.squeeze(1), input_decoder))
-            input_decoder = torh.cat(input_decoder, 0)
+            input_decoder = torch.cat(input_decoder, 0)
 
 
             output_encoder = self.extract_feature(input_encoder)
