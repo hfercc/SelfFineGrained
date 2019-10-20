@@ -275,6 +275,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             loss = loss + criterion(jigsaw_output, jigsaw_target)
         if args.with_selfie:
             patch_loss = 0
+            print(selfie_output)
             output_encoder, features = selfie_output
             for i in range(len(t)):
                 activate = output_encoder[:, i, :].unsqueeze(1)
@@ -288,7 +289,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
                 patch_loss += loss_
 
             loss = loss + patch_loss
-            
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
