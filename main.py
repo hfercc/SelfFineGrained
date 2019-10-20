@@ -230,6 +230,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     losses = AverageMeter()
     top1rotation = AverageMeter()
     top1jigsaw = AverageMeter()
+    top1selfie = AverageMeter()
     model.train()
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
@@ -262,7 +263,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         if args.rotation_aug:
             input = rotation_input
             
-        output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked, selfie_input)
+        output, rotation_output, jigsaw_output, selfie_output = model(input, rotation_input, jigsaw_stacked, selfie_input)
         if not args.ignore_classification:
             loss = criterion(output, target)
         else:
@@ -272,6 +273,22 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             loss = loss + criterion(rotation_output, rotation_target)
         if args.with_jigsaw:
             loss = loss + criterion(jigsaw_output, jigsaw_target)
+        if args.with_selfie:
+            patch_loss = 0
+            output_encoder, features = selfie_output
+            for i in range(len(t)):
+                activate = output_encoder[:, i, :].unsqueeze(1)
+                pre = torch.bmm(activate, features)
+                logit = nn.functional.softmax(pre, 2).view(-1, len(t))
+                temptarget = torch.ones(logit.shape[0]).cuda(self.args.gpu) * i
+                temptarget = target.long()
+                loss_ = criterion(logit, target)
+                prec1selfie = accuracy(logit, temptarget, topk=(1,_))
+                top1selfie.update(prec1selfie[0].item(), 1)
+                patch_loss += loss_
+
+            loss = loss + patch_loss
+            
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()

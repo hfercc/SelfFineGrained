@@ -118,6 +118,8 @@ class Model(nn.Module):
     def forward(self, x, rotation_x = None, jigsaw_x = None, selfie_x = None):
 
         bs = x.shape[0]
+        output_encoder = None
+        features = None
         x = self.extract_feature(x)
         x = self.layer4(x)
         x = self.fc(x)
@@ -160,22 +162,26 @@ class Model(nn.Module):
 
 
             output_encoder = self.extract_feature(input_encoder)
-            output_encoder = self.feature.avgpool(output_encoder).unsqueeze(1)
-            print(output_encoder.shape)
+            output_encoder = self.feature.avgpool(output_encoder).view(-1, 1024).unsqueeze(1)
+
             output_encoder = torch.split(output_encoder, bs, 0)
             output_encoder = torch.cat(output_encoder, 1)
             output_encoder = self.selfie(output_encoder, pos)
 
             output_decoder = self.extract_feature(input_decoder)
-            output_decoder = self.feature.avgpool(output_decoder).unsqueeze(1)
+            output_decoder = self.feature.avgpool(output_decoder).view(-1, 1024).unsqueeze(1)
             output_decoder = torch.split(output_decoder, bs, 0)
 
             features = []
             for i in range(len(pos)):
-                raise NotImplementedError
-                feature = output_decoder
+                feature = output_decoder[:, i, :]
+                feature = feature.unsqueeze(2)
+                features.append(feature)
 
-        return x, rotation_x, jigsaw_x
+            features = torch.cat(features, 2) # (B, F, NP)
+        
+
+        return x, rotation_x, jigsaw_x, (output_encoder, features)
 
 def split_resnet50(model):
     return nn.Sequential(
