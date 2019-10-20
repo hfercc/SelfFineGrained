@@ -13,6 +13,7 @@ class Model(nn.Module):
 
     def __init__(self, args, num_classes = 200):
         super(Model, self).__init__()
+        self.args = args
         if args.arch == 'resnet50':
             self.feature = torchvision.models.resnet50(pretrained = True)
             self.fc = nn.Linear(2048, num_classes)
@@ -140,8 +141,8 @@ class Model(nn.Module):
         if selfie_x is not None:
             batches, v, t = selfie_x
             pos = t
-            v = torch.from_numpy(v).cuda(args.gpu)
-            t = torch.from_numpy(np.array(pos)).cuda(args.gpu)
+            v = torch.from_numpy(v).cuda(self.args.gpu)
+            t = torch.from_numpy(np.array(pos)).cuda(self.args.gpu)
 
 
             input_encoder = batches.index_select(1, v)
