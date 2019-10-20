@@ -274,11 +274,11 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         top1rotation.update(prec_rotation[0].item(), input.shape[0])
         top1jigsaw.update(prec_jigsaw[0].item(), input.shape[0])
         if index % args.print_freq == 0:
-            print('Epoch: [{0}/{1}]\t'
+            print('Epoch: [{0}][{1}/{2}]\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'PrecRotation@1 {top1rotation.val:.3f} ({top1rotation.avg:.3f})\t'
                   'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'.format(
-                       index, len(val_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw))
+                       epoch, index, len(train_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw))
 
     scheduler.step()
     return losses.avg, (top1rotation.avg + top1jigsaw.avg) / 2
