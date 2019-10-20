@@ -276,6 +276,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         if args.with_selfie:
             patch_loss = 0
             output_encoder, features = selfie_output
+            print(len(t))
             for i in range(len(t)):
                 activate = output_encoder[:, i, :].unsqueeze(1)
                 pre = torch.bmm(activate, features)
