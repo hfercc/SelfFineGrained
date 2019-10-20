@@ -227,7 +227,8 @@ def ensemble_val(val_loader, model, criterion):
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     global args
     losses = AverageMeter()
-    top1 = AverageMeter()
+    top1rotation = AverageMeter()
+    top1jigsaw = AverageMeter()
     model.train()
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
@@ -267,22 +268,26 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
         loss.backward()
         optimizer.step()
 
-        prec1 = accuracy(output, target, topk=(1,))
+        prec_rotation = accuracy(rotation_output, rotation_target, topk=(1,))
+        prec_jigsaw = accuracy(jigsaw_output, jigsaw_target, topk=(1,))
         losses.update(loss.item(), input.shape[0])
-        top1.update(prec1[0].item(), input.shape[0])
-
+        top1rotation.update(prec_rotation[0].item(), input.shape[0])
+        top1jigsaw.update(prec_jigsaw[0].item(), input.shape[0])
         if index % args.print_freq == 0:
-            print('Epoch: [{0}][{1}/{2}]\t'
+            print('Epoch: [{0}/{1}]\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
-                   epoch, index, len(train_loader), loss=losses, top1=top1))
+                  'PrecRotation@1 {top1rotation.val:.3f} ({top1rotation.avg:.3f})\t'
+                  'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'.format(
+                       index, len(val_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw))
+
     scheduler.step()
-    return losses.avg, top1.avg
+    return losses.avg, (top1rotation.avg + top1jigsaw.avg) / 2
 
 def val(val_loader, model, criterion):
     global args
     losses = AverageMeter()
-    top1 = AverageMeter()
+    top1rotation = AverageMeter()
+    top1jigsaw = AverageMeter()
     model.eval()
     with torch.no_grad():
         for index, (input, target) in enumerate(val_loader):
@@ -315,17 +320,24 @@ def val(val_loader, model, criterion):
             else:
                 loss = 0   
 
-            prec1 = accuracy(output, target, topk=(1,))
-            losses.update(loss.item(), input.shape[0])
-            top1.update(prec1[0].item(), input.shape[0])
+            if args.with_rotation:
+                loss = loss + criterion(rotation_output, rotation_target)
+            if args.with_jigsaw:
+                loss = loss + criterion(jigsaw_output, jigsaw_target)
 
+            prec_rotation = accuracy(rotation_output, rotation_target, topk=(1,))
+            prec_jigsaw = accuracy(jigsaw_output, jigsaw_target, topk=(1,))
+            losses.update(loss.item(), input.shape[0])
+            top1rotation.update(prec_rotation[0].item(), input.shape[0])
+            top1jigsaw.update(prec_jigsaw[0].item(), input.shape[0])
             if index % args.print_freq == 0:
                 print('Epoch: [{0}/{1}]\t'
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
-                       index, len(val_loader), loss=losses, top1=top1))
+                      'PrecRotation@1 {top1rotation.val:.3f} ({top1rotation.avg:.3f})\t'
+                      'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'.format(
+                       index, len(val_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw))
 
-    return losses.avg, top1.avg
+    return losses.avg, (top1rotation.avg + top1jigsaw.avg) / 2
 
 def accuracy(output, target, topk=(1,)):
     #print(output.shape)
