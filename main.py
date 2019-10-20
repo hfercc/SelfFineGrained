@@ -9,7 +9,7 @@ import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
-from utils import split_image
+from utils import split_image, combine_image
 from ss import rotation, JigsawGenerator
 
 torch.backends.cudnn.benchmark = True
