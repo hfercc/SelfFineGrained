@@ -23,3 +23,4 @@ def combine_image(image, N):
     for i in s:
         print(i.shape)
     out = torch.cat(s, 2)
+    return out
