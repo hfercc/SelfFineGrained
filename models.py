@@ -7,6 +7,7 @@ import torch.nn as nn
 from utils import split_image
 
 from resnetv2 import ResNet50 as resnet50v2
+from attention_pooling.attention_pooling import SelfieModel
 
 class Model(nn.Module):
 
@@ -33,6 +34,21 @@ class Model(nn.Module):
             self.jigsaw_fc = nn.Linear(2048, 30)
         else:
             self.jigsaw_fc = None
+
+        if args.with_selfie:
+            if args.dataset == 'cifar':
+                n_layers = 12
+            elif args.dataset == 'imagenet224': 
+                n_layers = 49 - 12
+            elif args.dataset == 'CUB':
+                n_layers = 49 - 12
+            d_model = 1024 #vector length after the patch routed in P
+            if args.dataset == 'CUB':
+                d_model = 1024
+            d_in = 128
+            n_heads = d_model// d_in
+            d_ff = 2048
+            self.selfie = SelfieModel(n_layers, n_heads, d_in, d_model, d_ff, n_split, gpu=args.gpu, shared = False) 
 
         if args.load_weights is not None:
             try:
@@ -94,8 +110,9 @@ class Model(nn.Module):
         x = torch.flatten(x, 1)
         return x
 
-    def forward(self, x, rotation_x = None, jigsaw_x = None):
+    def forward(self, x, rotation_x = None, jigsaw_x = None, selfie_x = None):
 
+        bs = x.shape[0]
         x = self.extract_feature(x)
         x = self.layer4(x)
         x = self.fc(x)
@@ -116,6 +133,41 @@ class Model(nn.Module):
                 jigsaw_x = self.jigsaw_layer4(jigsaw_x)
 
             jigsaw_x = self.jigsaw_fc(jigsaw_x)
+
+        if selfie_x is not None:
+            batches, v, t = selfie_x
+            pos = t
+            t = torch.from_numpy(np.array(pos)).cuda(args.gpu)
+
+
+            input_encoder = batches.index_select(1, v)
+            input_decoder = batches.index_select(1, t)
+            output_decoder = []
+
+            input_encoder = torch.split(input_encoder, 1, 1)
+            input_encoder = list(map(lambda x: x.squeeze(1), input_encoder))
+            input_encoder = torh.cat(input_encoder, 0)
+
+            input_decoder = torch.split(input_decoder, 1, 1)
+            input_decoder = list(map(lambda x: x.squeeze(1), input_decoder))
+            input_decoder = torh.cat(input_decoder, 0)
+
+
+            output_encoder = self.extract_feature(input_encoder)
+            output_encoder = self.feature.avgpool(output_encoder).unsqueeze(1)
+            print(output_encoder.shape)
+            output_encoder = torch.split(output_encoder, bs, 0)
+            output_encoder = torch.cat(output_encoder, 1)
+            output_encoder = self.selfie(output_encoder, pos)
+
+            output_decoder = self.extract_feature(input_decoder)
+            output_decoder = self.feature.avgpool(output_decoder).unsqueeze(1)
+            output_decoder = torch.split(output_decoder, bs, 0)
+
+            features = []
+            for i in range(len(pos)):
+                raise NotImplementedError
+                feature = output_decoder
 
         return x, rotation_x, jigsaw_x
 

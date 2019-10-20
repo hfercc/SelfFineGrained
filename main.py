@@ -9,7 +9,7 @@ import tensorboardX
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
-from utils import split_image, combine_image
+from utils import *
 from ss import rotation, JigsawGenerator
 
 torch.backends.cudnn.benchmark = True
@@ -51,6 +51,7 @@ parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
 parser.add_argument('--with-rotation', action="store_true")
 parser.add_argument('--with-jigsaw', action="store_true")
+parser.add_argument('--with-selfie', action="store_true")
 parser.add_argument('--ignore-classification', action="store_true")
 parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
