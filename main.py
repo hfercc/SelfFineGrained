@@ -237,6 +237,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
 
         jigsaw_stacked = None
         rotation_input = None
+        selfie_input = None
         if args.with_jigsaw:
             if args.dataset == 'CUB':
                 splited_list = split_image(input, 112)
@@ -252,10 +253,16 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             rotation_input = input
             rotation_input, rotation_target = rotation(input)
 
+
+        if args.with_selfie:
+            t, v, batches = get_index(input)            
+            selfie_input = (t, v, batches)
+
+
         if args.rotation_aug:
             input = rotation_input
             
-        output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked)
+        output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked, selfie_input)
         if not args.ignore_classification:
             loss = criterion(output, target)
         else:
