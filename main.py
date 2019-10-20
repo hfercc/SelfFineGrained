@@ -273,10 +273,10 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             loss = loss + criterion(rotation_output, rotation_target)
         if args.with_jigsaw:
             loss = loss + criterion(jigsaw_output, jigsaw_target)
+
         if args.with_selfie:
             patch_loss = 0
             output_encoder, features = selfie_output
-            print(len(t))
             for i in range(len(t)):
                 activate = output_encoder[:, i, :].unsqueeze(1)
                 pre = torch.bmm(activate, features)
@@ -303,8 +303,9 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'PrecRotation@1 {top1rotation.val:.3f} ({top1rotation.avg:.3f})\t'
-                  'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'.format(
-                       epoch, index, len(train_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw))
+                  'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'
+                  'PrecSelfie@1 {top1selfie.val:.3f} ({top1selfie.avg:.3f})\t'.format(
+                       epoch, index, len(train_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw,top1selfie=top1selfie))
 
     scheduler.step()
     return losses.avg, (top1rotation.avg + top1jigsaw.avg) / 2
@@ -314,6 +315,7 @@ def val(val_loader, model, criterion):
     losses = AverageMeter()
     top1rotation = AverageMeter()
     top1jigsaw = AverageMeter()
+    top1selfie = AverageMeter()
     model.eval()
     with torch.no_grad():
         for index, (input, target) in enumerate(val_loader):
@@ -321,6 +323,7 @@ def val(val_loader, model, criterion):
             target = target.cuda(args.gpu)
             jigsaw_stacked = None
             rotation_input = None
+            selfie_input = None
             if args.with_jigsaw:
                 if args.dataset == 'CUB':
                     splited_list = split_image(input, 112)
@@ -340,7 +343,12 @@ def val(val_loader, model, criterion):
             if args.rotation_aug:
                 input = rotation_input
 
-            output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked)
+            if args.with_selfie:
+                t, v, batches = get_index(input)            
+                selfie_input = (batches, v, t)
+
+
+            output, rotation_output, jigsaw_output, selfie_output = model(input, rotation_input, jigsaw_stacked, selfie_input)
             if not args.ignore_classification:
                 loss = criterion(output, target)
             else:
@@ -351,6 +359,22 @@ def val(val_loader, model, criterion):
             if args.with_jigsaw:
                 loss = loss + criterion(jigsaw_output, jigsaw_target)
 
+            if args.with_selfie:
+                patch_loss = 0
+                output_encoder, features = selfie_output
+                for i in range(len(t)):
+                    activate = output_encoder[:, i, :].unsqueeze(1)
+                    pre = torch.bmm(activate, features)
+                    logit = nn.functional.softmax(pre, 2).view(-1, len(t))
+                    temptarget = torch.ones(logit.shape[0]).cuda(args.gpu) * i
+                    temptarget = temptarget.long()
+                    loss_ = criterion(logit, temptarget)
+                    prec_selfie = accuracy(logit, temptarget, topk=(1,))
+                    top1selfie.update(prec_selfie[0].item(), input.shape[0])
+                    patch_loss += loss_
+
+                loss = loss + patch_loss
+
             prec_rotation = accuracy(rotation_output, rotation_target, topk=(1,))
             prec_jigsaw = accuracy(jigsaw_output, jigsaw_target, topk=(1,))
             losses.update(loss.item(), input.shape[0])
@@ -360,8 +384,9 @@ def val(val_loader, model, criterion):
                 print('Epoch: [{0}/{1}]\t'
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                       'PrecRotation@1 {top1rotation.val:.3f} ({top1rotation.avg:.3f})\t'
-                      'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'.format(
-                       index, len(val_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw))
+                      'PrecJigsaw@1 {top1jigsaw.val:.3f} ({top1jigsaw.avg:.3f})\t'
+                      'PrecSelfie@1 {top1selfie.val:.3f} ({top1selfie.avg:.3f})\t'.format(
+                       index, len(val_loader), loss=losses, top1rotation=top1rotation, top1jigsaw=top1jigsaw, top1selfie=top1selfie))
 
     return losses.avg, (top1rotation.avg + top1jigsaw.avg) / 2
 
