@@ -231,16 +231,20 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
     model.train()
     for index, (input, target) in enumerate(train_loader):
         input = input.cuda(args.gpu)
+        target = target.cuda(args.gpu)
+
         jigsaw_stacked = None
         rotation_input = None
         if args.with_jigsaw:
-            splited_list = split_image(input, 112)
+            if args.dataset == 'CUB':
+                splited_list = split_image(input, 112)
+            elif args.dataset == 'cifar':
+                splited_list = split_image(input, 8)
             splited_list = [i.unsqueeze(1) for i in splited_list]
-            jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
-            jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
-            jigsaw_stacked = torch.cat(splited_list, 0).contiguous().squeeze(1)
-
-        target = target.cuda(args.gpu)
+            jigsaw_stacked = torch.cat(splited_list, 1)
+            jigsaw_stacked, target = jigsaw(jigsaw_stacked)
+            jigsaw_stacked = combine_image(jigsaw_stacked, 4)
+       
 
         if args.with_rotation:
             rotation_input = input
@@ -283,14 +287,18 @@ def val(val_loader, model, criterion):
     with torch.no_grad():
         for index, (input, target) in enumerate(val_loader):
             input = input.cuda(args.gpu)
+            target = target.cuda(args.gpu)
             jigsaw_stacked = None
             rotation_input = None
             if args.with_jigsaw:
-                splited_list = split_image(input, 112)
+                if args.dataset == 'CUB':
+                    splited_list = split_image(input, 112)
+                elif args.dataset == 'cifar':
+                    splited_list = split_image(input, 8)
                 splited_list = [i.unsqueeze(1) for i in splited_list]
-                jigsaw_stacked = torch.cat(splited_list, 1).contiguous()
-                jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
-                jigsaw_stacked = torch.cat(splited_list, 0).contiguous().squeeze(1)
+                jigsaw_stacked = torch.cat(splited_list, 1)
+                jigsaw_stacked, target = jigsaw(jigsaw_stacked)
+                jigsaw_stacked = combine_image(jigsaw_stacked, 4)
 
             target = target.cuda(args.gpu)
 
@@ -300,7 +308,6 @@ def val(val_loader, model, criterion):
 
             if args.rotation_aug:
                 input = rotation_input
-                target = target.cuda(args.gpu)
 
             output, rotation_output, jigsaw_output = model(input, rotation_input, jigsaw_stacked)
             if not args.ignore_classification:

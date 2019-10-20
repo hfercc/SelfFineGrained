@@ -30,9 +30,8 @@ class Model(nn.Module):
             self.rotation_fc = None
 
         if args.with_jigsaw:
-            self.jigsaw_fc = nn.Sequential(
-                nn.Linear(2048 * 16, 2048),
-                nn.Linear(2048, 30))
+            self.jigsaw_fc = 
+                nn.Linear(2048, 30)
         else:
             self.jigsaw_fc = None
 
@@ -114,8 +113,6 @@ class Model(nn.Module):
                 jigsaw_x = self.layer4(jigsaw_x)
             else:
                 jigsaw_x = self.jigsaw_layer4(jigsaw_x)
-
-            jigsaw_x = jigsaw_x.reshape(x.shape[0], -1)
 
             jigsaw_x = self.jigsaw_fc(jigsaw_x)
 
