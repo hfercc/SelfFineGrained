@@ -171,7 +171,7 @@ class Model(nn.Module):
             output_decoder = self.extract_feature(input_decoder)
             output_decoder = self.feature.avgpool(output_decoder).view(-1, 1024).unsqueeze(1)
             output_decoder = torch.split(output_decoder, bs, 0)
-
+            output_decoder = torch.cat(output_decoder, 1)
             features = []
             for i in range(len(pos)):
                 feature = output_decoder[:, i, :]
