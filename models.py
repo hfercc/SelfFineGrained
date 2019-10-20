@@ -94,6 +94,9 @@ class Model(nn.Module):
         return x
 
     def forward(self, x, rotation_x = None, jigsaw_x = None):
+        print(x.shape)
+        print(rotation_x.shape)
+        print(jigsaw_x.shape)
         x = self.extract_feature(x)
         x = self.layer4(x)
         x = self.fc(x)
