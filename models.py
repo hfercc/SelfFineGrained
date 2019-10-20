@@ -38,10 +38,13 @@ class Model(nn.Module):
         if args.with_selfie:
             if args.dataset == 'cifar':
                 n_layers = 12
+                n_split = 4
             elif args.dataset == 'imagenet224': 
                 n_layers = 49 - 12
+                n_split = 7
             elif args.dataset == 'CUB':
                 n_layers = 49 - 12
+                n_split = 7
             d_model = 1024 #vector length after the patch routed in P
             if args.dataset == 'CUB':
                 d_model = 1024
