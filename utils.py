@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 def split_image(image, N):
     """
