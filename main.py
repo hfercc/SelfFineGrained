@@ -242,7 +242,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
                 splited_list = split_image(input, 8)
             splited_list = [i.unsqueeze(1) for i in splited_list]
             jigsaw_stacked = torch.cat(splited_list, 1)
-            jigsaw_stacked, target = jigsaw(jigsaw_stacked)
+            jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
             jigsaw_stacked = combine_image(jigsaw_stacked, 4)
        
 
@@ -297,7 +297,7 @@ def val(val_loader, model, criterion):
                     splited_list = split_image(input, 8)
                 splited_list = [i.unsqueeze(1) for i in splited_list]
                 jigsaw_stacked = torch.cat(splited_list, 1)
-                jigsaw_stacked, target = jigsaw(jigsaw_stacked)
+                jigsaw_stacked, jigsaw_target = jigsaw(jigsaw_stacked)
                 jigsaw_stacked = combine_image(jigsaw_stacked, 4)
 
             target = target.cuda(args.gpu)
