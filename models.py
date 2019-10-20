@@ -22,7 +22,7 @@ class Model(nn.Module):
             raise NotImplementedError
 
         if args.dataset == 'cifar':
-            model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
+            self.feature.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
 
         if args.with_rotation:
             self.rotation_fc = nn.Linear(2048, 4)
