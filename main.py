@@ -275,13 +275,12 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
             loss = loss + criterion(jigsaw_output, jigsaw_target)
         if args.with_selfie:
             patch_loss = 0
-            print(selfie_output)
             output_encoder, features = selfie_output
             for i in range(len(t)):
                 activate = output_encoder[:, i, :].unsqueeze(1)
                 pre = torch.bmm(activate, features)
                 logit = nn.functional.softmax(pre, 2).view(-1, len(t))
-                temptarget = torch.ones(logit.shape[0]).cuda(self.args.gpu) * i
+                temptarget = torch.ones(logit.shape[0]).cuda(args.gpu) * i
                 temptarget = target.long()
                 loss_ = criterion(logit, target)
                 prec1selfie = accuracy(logit, temptarget, topk=(1,_))
