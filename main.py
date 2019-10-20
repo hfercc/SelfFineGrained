@@ -283,7 +283,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
                 temptarget = torch.ones(logit.shape[0]).cuda(args.gpu) * i
                 temptarget = target.long()
                 loss_ = criterion(logit, target)
-                prec1selfie = accuracy(logit, temptarget, topk=(1,_))
+                prec1selfie = accuracy(logit, temptarget, topk=(1,))
                 top1selfie.update(prec1selfie[0].item(), 1)
                 patch_loss += loss_
 
