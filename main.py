@@ -256,7 +256,7 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch):
 
         if args.with_selfie:
             t, v, batches = get_index(input)            
-            selfie_input = (t, v, batches)
+            selfie_input = (batches, v, t)
 
 
         if args.rotation_aug:
