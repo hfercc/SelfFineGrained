@@ -57,6 +57,7 @@ parser.add_argument('--seperate-layer4', action="store_true")
 parser.add_argument('--rotation-aug', action="store_true")
 
 parser.add_argument('--self-ensemble', action="store_true")
+parser.add_argument('--branches-enabled', action="store_true")
 
 def main():
     global args, best_prec1, summary_writer, jigsaw

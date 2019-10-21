@@ -216,8 +216,13 @@ class SelfEnsembleModel(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.gate = None # Initialize in forward()
 
+        self.files = args.branches_enabled.split(',')
+        self.files = list(map(lambda x: 'models/' + x + '_' + args.dataset + '/model_best.pth.tar', self.files))
+
         for i in self.branches:
             i.cuda()
+
+        self._load(self.files)
 
 
     def _load(self, files):
@@ -238,6 +243,7 @@ class SelfEnsembleModel(nn.Module):
         for i in range(self.num_of_branches):
             feature_map = self.branches[i](x[i]).unsqueeze(0)
             feature_maps.append(feature_map * self.gate[i])
+
         feature_maps = torch.sum(torch.cat(feature_maps, 0), 0)
 
         feature_maps = self.layer4(feature_maps)
