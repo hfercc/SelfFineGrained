@@ -255,7 +255,7 @@ class SelfEnsembleModel(nn.Module):
                     name = k[7:] # remove `module.`
                     new_state_dict[name] = v
                 state_dict.update(new_state_dict)
-                print(state_dict.state_dict())
+                print(state_dict.keys())
                 self.branches[i].load_state_dict(state_dict)
                 del new_state_dict
                 del data_dict
