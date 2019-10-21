@@ -230,7 +230,14 @@ class SelfEnsembleModel(nn.Module):
         for i in range(self.num_of_branches):
             try:
                 state_dict = self.branches[i].state_dict()
-                new_state_dict = torch.load(files[i])
+                new_state_dict = torch.load(files[i])['model_state']
+                if 'fc.weight' in new_state_dict:
+                    del new_state_dict['fc.weight']
+                    del new_state_dict['fc.bias']
+                elif 'module.fc.weight':
+                    del new_state_dict['module.fc.weight']
+                    del new_state_dict['module.fc.bias']
+                
                 state_dict.update(new_state_dict['model_state'])
                 self.branches[i].load_state_dict(state_dict)
             except RuntimeError:
