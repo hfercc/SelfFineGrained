@@ -15,7 +15,7 @@ class Model(nn.Module):
     def __init__(self, args, num_classes = 200):
         super(Model, self).__init__()
         self.args = args
-        if args.arch == 'resnet50':
+        if args.arch == 'resnet50v1':
             self.feature = torchvision.models.resnet50(pretrained = True)
             self.fc = nn.Linear(2048, num_classes)
         elif args.arch == 'resnet50v2':

@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(description='Selfie')
 parser.add_argument('--data', metavar='DIR',
                     help='path to dataset')
 parser.add_argument('--dataset', type=str, default="CUB")
-parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet50',
+parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet50v1',
                     help='model architecture: ')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
