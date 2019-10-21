@@ -368,7 +368,7 @@ def val(val_loader, model, criterion):
                     activate = output_encoder[:, i, :].unsqueeze(1)
                     pre = torch.bmm(activate, features)
                     logit = nn.functional.softmax(pre, 2).view(-1, len(t))
-                    temptarget = torch.ones(logit.shape[0]).cuda(args.gpu) * i
+                    temptarget = torch.ones(logit.shape[0]).cuda(self.args.gpu) * i
                     temptarget = temptarget.long()
                     loss_ = criterion(logit, temptarget)
                     prec_selfie = accuracy(logit, temptarget, topk=(1,))
