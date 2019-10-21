@@ -219,6 +219,7 @@ class SelfEnsembleModel(nn.Module):
         self.files = list(map(lambda x: 'models/' + x + '_' + args.dataset + '/model_best.pth.tar', self.files))
 
         for i in self.branches:
+            print(i.state_dict().keys())
             if args.dataset == 'cifar':
                 i.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
             i.cuda()
