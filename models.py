@@ -232,7 +232,7 @@ class SelfEnsembleModel(nn.Module):
                 state_dict = self.branches[i].state_dict()
                 new_state_dict = torch.load(files[i])
                 #print(new_state_dict.keys())
-                state_dict.update(new_state_dict['state_dict'])
+                state_dict.update(new_state_dict['model_state'])
                 self.branches[i].load_state_dict(state_dict)
             except RuntimeError:
                 state_dict = self.branches[i].state_dict()
