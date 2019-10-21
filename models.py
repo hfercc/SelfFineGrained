@@ -230,9 +230,11 @@ class SelfEnsembleModel(nn.Module):
         for i in range(self.num_of_branches):
             try:
                 state_dict = self.branches[i].state_dict()
+                print(state_dict.keys())
                 new_state_dict = torch.load(files[i])
                 #print(new_state_dict.keys())
                 state_dict.update(new_state_dict['model_state'])
+                print(state_dict.keys())
                 self.branches[i].load_state_dict(state_dict)
             except RuntimeError:
                 state_dict = self.branches[i].state_dict()
