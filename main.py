@@ -183,7 +183,7 @@ def ensemble_train(train_loader, model, criterion, optimizer, scheduler, epoch):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
             
-        output = model([input] * 3)
+        output = model([input] * args.num_branches)
 
         loss = criterion(output, target)
         optimizer.zero_grad()
