@@ -238,9 +238,17 @@ class SelfEnsembleModel(nn.Module):
                     del new_state_dict['module.fc.weight']
                     del new_state_dict['module.fc.bias']
 
+                if 'conv1.weight' in new_state_dict:
+                    del new_state_dict['conv1.weight']
+                    del new_state_dict['conv1.bias']
+                elif 'module.fc.weight':
+                    del new_state_dict['module.conv1.weight']
+                    del new_state_dict['module.conv1.bias']
+
                 state_dict.update(new_state_dict)
                 self.branches[i].load_state_dict(state_dict)
-            except RuntimeError:
+            except RuntimeError as e:
+                print(e)
                 state_dict = self.branches[i].state_dict()
                 model_loaded = torch.load(files[i])
                 data_dict = model_loaded['model_state']
@@ -250,8 +258,6 @@ class SelfEnsembleModel(nn.Module):
                     name = k[7:] # remove `module.`
                     new_state_dict[name] = v
                 print(new_state_dict.keys())
-                del new_state_dict['fc.weight']
-                del new_state_dict['fc.bias']
                 state_dict.update(new_state_dict)
                 self.branches[i].load_state_dict(state_dict)
                 del new_state_dict
