@@ -183,16 +183,15 @@ class Model(nn.Module):
 
         return x, rotation_x, jigsaw_x, (output_encoder, features)
 
-def split_resnet50(model):
-    return nn.Sequential(
-        model.conv1,
-        model.bn1,
-        model.relu,
-        model.maxpool,
-        model.layer1,
-        model.layer2,
-        model.layer3
-    )
+def split_resnet50_layer3_forward(model, x):
+    x = model.conv1(x)
+    x = model.bn1(x)
+    x = model.relu(x)
+    x = model.maxpool(x)
+    x = model.layer1(x)
+    x = model.layer2(x)
+    x = model.layer3(x)
+    return x
 
 
 class SelfEnsembleModel(nn.Module):
@@ -204,11 +203,11 @@ class SelfEnsembleModel(nn.Module):
         self.args = args
 
         if args.arch == 'resnet50v1':
-            self.branches = [split_resnet50(torchvision.models.resnet50(pretrained = True)) for _ in range(num_of_branches)]
+            self.branches = [torchvision.models.resnet50(pretrained = True) for _ in range(num_of_branches)]
             self.layer4 = torchvision.models.resnet50(pretrained = True).layer4 
             self.fc = nn.Linear(2048, num_classes)
         elif args.arch == 'resnet50v2':
-            self.branches = [split_resnet50(resnet50v2()) for _ in range(num_of_branches)]
+            self.branches = [resnet50v2() for _ in range(num_of_branches)]
             self.layer4 = resnet50v2().layer4 
             self.fc = nn.Linear(2048, num_classes)
         
@@ -260,7 +259,7 @@ class SelfEnsembleModel(nn.Module):
 
         #print(self.gate.grad)
         for i in range(self.num_of_branches):
-            feature_map = self.branches[i](x[i]).unsqueeze(0)
+            feature_map = split_resnet50_layer3_forward(self.branches[i], x[i]).unsqueeze(0)
             feature_maps.append(feature_map * self.gate[i])
 
         feature_maps = torch.sum(torch.cat(feature_maps, 0), 0)
