@@ -233,6 +233,7 @@ class SelfEnsembleModel(nn.Module):
                 state_dict.update(new_state_dict)
                 self.branches[i].load_state_dict(state_dict)
             except RuntimeError:
+                state_dict = self.branches[i].state_dict()
                 model_loaded = torch.load(files[i])
                 data_dict = model_loaded['model_state']
                 from collections import OrderedDict
