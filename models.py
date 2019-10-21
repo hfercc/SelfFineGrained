@@ -234,7 +234,7 @@ class SelfEnsembleModel(nn.Module):
                 if 'fc.weight' in new_state_dict:
                     del new_state_dict['fc.weight']
                     del new_state_dict['fc.bias']
-                elif 'module.fc.weight':
+                elif 'module.fc.weight' in new_state_dict:
                     del new_state_dict['module.fc.weight']
                     del new_state_dict['module.fc.bias']
 
