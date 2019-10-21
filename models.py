@@ -258,8 +258,6 @@ class SelfEnsembleModel(nn.Module):
                 self.branches[i].load_state_dict(state_dict)
                 del new_state_dict
                 del data_dict
-            except KeyError as e:
-                print(e)
 
 
     def forward(self, x):
