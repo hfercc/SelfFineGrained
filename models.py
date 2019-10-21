@@ -240,10 +240,8 @@ class SelfEnsembleModel(nn.Module):
 
                 if 'conv1.weight' in new_state_dict:
                     del new_state_dict['conv1.weight']
-                    del new_state_dict['conv1.bias']
                 elif 'module.fc.weight':
                     del new_state_dict['module.conv1.weight']
-                    del new_state_dict['module.conv1.bias']
 
                 state_dict.update(new_state_dict)
                 self.branches[i].load_state_dict(state_dict)
