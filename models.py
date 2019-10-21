@@ -235,7 +235,6 @@ class SelfEnsembleModel(nn.Module):
             except RuntimeError:
                 model_loaded = torch.load(files[i])
                 data_dict = model_loaded['model_state']
-                state_dict = model.state_dict()
                 from collections import OrderedDict
                 new_state_dict = OrderedDict()
                 for k, v in data_dict.items():
