@@ -242,7 +242,7 @@ class SelfEnsembleModel(nn.Module):
                 for k, v in data_dict.items():
                     name = k[7:] # remove `module.`
                     new_state_dict[name] = v
-                print(new_state_dict.state_dict)
+                print(new_state_dict.keys())
                 del new_state_dict['fc.weight']
                 del new_state_dict['fc.bias']
                 state_dict.update(new_state_dict)
