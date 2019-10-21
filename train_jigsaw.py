@@ -113,9 +113,7 @@ def main():
     if args.dataset == 'cifar':
         model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
     
-    model.fc = nn.Sequential(
-                nn.Linear(2048, 30)
-            )
+    model.fc = nn.Linear(2048, 30)
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
