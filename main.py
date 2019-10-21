@@ -46,6 +46,7 @@ parser.add_argument('--store-model-everyepoch', dest='store_model_everyepoch', a
                     help='store checkpoint in every epoch')
 parser.add_argument('--evaluation', action="store_true")
 parser.add_argument('--resume', action="store_true")
+parser.add_argument('--num-branches', type=int, default=3)
 
 parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
@@ -116,7 +117,7 @@ def main():
     if not args.self_ensemble:
         model = models.Model(args, num_classes)
     else:
-        model = models.SelfEnsembleModel(args, 3)
+        model = models.SelfEnsembleModel(args, args.num_branches)
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
