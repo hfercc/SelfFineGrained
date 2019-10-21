@@ -237,8 +237,8 @@ class SelfEnsembleModel(nn.Module):
                 elif 'module.fc.weight':
                     del new_state_dict['module.fc.weight']
                     del new_state_dict['module.fc.bias']
-                
-                state_dict.update(new_state_dict['model_state'])
+
+                state_dict.update(new_state_dict)
                 self.branches[i].load_state_dict(state_dict)
             except RuntimeError:
                 state_dict = self.branches[i].state_dict()
