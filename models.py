@@ -219,7 +219,6 @@ class SelfEnsembleModel(nn.Module):
         self.files = list(map(lambda x: 'models/' + x + '_' + args.dataset + '/model_best.pth.tar', self.files))
 
         for i in self.branches:
-            print(i.state_dict().keys())
             if args.dataset == 'cifar':
                 i.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)
             i.cuda()
@@ -229,9 +228,9 @@ class SelfEnsembleModel(nn.Module):
 
     def _load(self, files):
         for i in range(self.num_of_branches):
-            print(files[i])
             try:
                 state_dict = self.branches[i].state_dict()
+                print(state_dict.keys())
                 new_state_dict = torch.load(files[i])
                 state_dict.update(new_state_dict)
                 self.branches[i].load_state_dict(state_dict)
