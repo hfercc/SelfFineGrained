@@ -1,2 +1,2 @@
-from MPNCOV import MPNCOV
+from .MPNCOV import MPNCOV
 
