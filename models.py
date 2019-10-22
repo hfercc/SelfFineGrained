@@ -233,38 +233,41 @@ class SelfEnsembleModel(nn.Module):
 
     def _load(self, files):
         for i in range(self.num_of_branches):
-            try:
-                state_dict = self.branches[i].state_dict()
-                new_state_dict = torch.load(files[i])['model_state']
-                if 'fc.weight' in new_state_dict:
-                    del new_state_dict['fc.weight']
-                    del new_state_dict['fc.bias']
-                elif 'module.fc.weight' in new_state_dict:
-                    del new_state_dict['module.fc.weight']
-                    del new_state_dict['module.fc.bias']
+            if 'origin' in self.files[i]:
+                pass
+            else:
+                try:
+                    state_dict = self.branches[i].state_dict()
+                    new_state_dict = torch.load(files[i])['model_state']
+                    if 'fc.weight' in new_state_dict:
+                        del new_state_dict['fc.weight']
+                        del new_state_dict['fc.bias']
+                    elif 'module.fc.weight' in new_state_dict:
+                        del new_state_dict['module.fc.weight']
+                        del new_state_dict['module.fc.bias']
 
-                if 'conv1.weight' in new_state_dict:
-                    del new_state_dict['conv1.weight']
-                elif 'module.conv1.weight' in new_state_dict:
-                    del new_state_dict['module.conv1.weight']
+                    if 'conv1.weight' in new_state_dict:
+                        del new_state_dict['conv1.weight']
+                    elif 'module.conv1.weight' in new_state_dict:
+                        del new_state_dict['module.conv1.weight']
 
-                state_dict.update(new_state_dict)
-                self.branches[i].load_state_dict(state_dict)
-            except RuntimeError as e:
-                state_dict = self.branches[i].state_dict()
-                model_loaded = torch.load(files[i])
-                data_dict = model_loaded['model_state']
-                from collections import OrderedDict
-                new_state_dict = OrderedDict()
-                for k, v in data_dict.items():
-                    name = k[7:] # remove `module.`
-                    new_state_dict[name] = v
-                #print(state_dict.keys())
-                state_dict.update(new_state_dict)
+                    state_dict.update(new_state_dict)
+                    self.branches[i].load_state_dict(state_dict)
+                except RuntimeError as e:
+                    state_dict = self.branches[i].state_dict()
+                    model_loaded = torch.load(files[i])
+                    data_dict = model_loaded['model_state']
+                    from collections import OrderedDict
+                    new_state_dict = OrderedDict()
+                    for k, v in data_dict.items():
+                        name = k[7:] # remove `module.`
+                        new_state_dict[name] = v
+                    #print(state_dict.keys())
+                    state_dict.update(new_state_dict)
 
-                self.branches[i].load_state_dict(state_dict)
-                del new_state_dict
-                del data_dict
+                    self.branches[i].load_state_dict(state_dict)
+                    del new_state_dict
+                    del data_dict
 
 
     def forward(self, x):
