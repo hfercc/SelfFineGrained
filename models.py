@@ -219,7 +219,7 @@ class SelfEnsembleModel(nn.Module):
             self.fc = nn.Linear(2048, num_classes)
         elif args.pooling == 'MPNCOV':
             self.avgpool = pooling.MPNCOV()
-            self.fc = nn.Linear(2048, num_classes)
+            self.fc = nn.Linear(2049 * 1024, num_classes)
 
         self.gate = None # Will be initialized in forward()
 
