@@ -46,7 +46,6 @@ parser.add_argument('--store-model-everyepoch', dest='store_model_everyepoch', a
                     help='store checkpoint in every epoch')
 parser.add_argument('--evaluation', action="store_true")
 parser.add_argument('--resume', action="store_true")
-parser.add_argument('--num-branches', type=int, default=3)
 
 parser.add_argument('--load-weights', default=None, type=str)
 parser.add_argument('--task', type=str, default=uuid.uuid1())
@@ -119,7 +118,7 @@ def main():
     if not args.self_ensemble:
         model = models.Model(args, num_classes)
     else:
-        model = models.SelfEnsembleModel(args, args.num_branches)
+        model = models.SelfEnsembleModel(args, len(args.branches_enabled.split(',')))
 
     criterion = nn.CrossEntropyLoss().cuda()
     if args.gpu is None:
@@ -185,7 +184,7 @@ def ensemble_train(train_loader, model, criterion, optimizer, scheduler, epoch):
         input = input.cuda(args.gpu)
         target = target.cuda(args.gpu)
             
-        output = model([input] * args.num_branches)
+        output = model([input] * len(args.branches_enabled.split(',')))
 
         loss = criterion(output, target)
         optimizer.zero_grad()
