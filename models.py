@@ -220,8 +220,8 @@ class SelfEnsembleModel(nn.Module):
         elif args.pooling == 'MPNCOV':
             self.avgpool = MPNCOV()
             self.fc = nn.Linear(2048, num_classes)
-            
-        self.gate = None # Initialize in forward()
+
+        self.gate = None # Will be initialized in forward()
 
         self.files = args.branches_enabled.split(',')
         self.files = list(map(lambda x: 'models/' + x + '_' + args.dataset + '/model_best.pth.tar', self.files))
