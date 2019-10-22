@@ -275,12 +275,13 @@ class SelfEnsembleModel(nn.Module):
         feature_maps = []
         
         if self.gate is None:
-            self.gate = nn.Parameter(torch.ones(self.num_of_branches).cuda(self.args.gpu) * 1.0 / self.num_of_branches)
+            self.gate = nn.Parameter(torch.ones(self.num_of_branches).cuda(self.args.gpu) * 1.0)
 
         #print(self.gate.grad)
+        activated_gate = torch.softmax(self.gate, 0)
         for i in range(self.num_of_branches):
             feature_map = split_resnet50_layer3_forward(self.branches[i], x[i]).unsqueeze(0)
-            feature_maps.append(feature_map * self.gate[i])
+            feature_maps.append(feature_map * activated_gate[i])
 
         feature_maps = torch.sum(torch.cat(feature_maps, 0), 0)
 
