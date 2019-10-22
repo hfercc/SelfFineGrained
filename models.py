@@ -9,6 +9,7 @@ from utils import split_image
 
 from resnetv2 import ResNet50 as resnet50v2
 from attention_pooling.attention_pooling import SelfieModel
+import pooling
 
 class Model(nn.Module):
 
@@ -17,12 +18,16 @@ class Model(nn.Module):
         self.args = args
         if args.arch == 'resnet50v1':
             self.feature = torchvision.models.resnet50(pretrained = True)
-            self.fc = nn.Linear(2048, num_classes)
         elif args.arch == 'resnet50v2':
             self.feature = resnet50v2(num_classes)
-            self.fc = nn.Linear(2048, num_classes)
         else:
             raise NotImplementedError
+
+        if args.pooling == 'avg':
+            self.fc = nn.Linear(2048, num_classes)
+        elif args.pooling == 'MPNCOV':
+            self.avgpool = MPNCOV()
+            self.fc = nn.Linear(2048, num_classes)
 
         if args.dataset == 'cifar':
             self.feature.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, bias=False)

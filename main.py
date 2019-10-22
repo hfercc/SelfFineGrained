@@ -60,6 +60,8 @@ parser.add_argument('--rotation-aug', action="store_true")
 parser.add_argument('--self-ensemble', action="store_true")
 parser.add_argument('--branches-enabled', type=str, default='')
 
+parser.add_argument('--pooling', type=str, default='avg')
+
 def main():
     global args, best_prec1, summary_writer, jigsaw
 
