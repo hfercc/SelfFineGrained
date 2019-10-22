@@ -210,14 +210,17 @@ class SelfEnsembleModel(nn.Module):
         if args.arch == 'resnet50v1':
             self.branches = [torchvision.models.resnet50(pretrained = True) for _ in range(num_of_branches)]
             self.layer4 = torchvision.models.resnet50(pretrained = True).layer4 
-            self.fc = nn.Linear(2048, num_classes)
         elif args.arch == 'resnet50v2':
             self.branches = [resnet50v2() for _ in range(num_of_branches)]
             self.layer4 = resnet50v2().layer4 
-            self.fc = nn.Linear(2048, num_classes)
         
-
-        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        if args.pooling == 'avg':
+            self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+            self.fc = nn.Linear(2048, num_classes)
+        elif args.pooling == 'MPNCOV':
+            self.avgpool = MPNCOV()
+            self.fc = nn.Linear(2048, num_classes)
+            
         self.gate = None # Initialize in forward()
 
         self.files = args.branches_enabled.split(',')
