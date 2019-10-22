@@ -218,7 +218,7 @@ class SelfEnsembleModel(nn.Module):
             self.avgpool = nn.AdaptiveAvgPool2d((1,1))
             self.fc = nn.Linear(2048, num_classes)
         elif args.pooling == 'MPNCOV':
-            self.avgpool = MPNCOV()
+            self.avgpool = pooling.MPNCOV()
             self.fc = nn.Linear(2048, num_classes)
 
         self.gate = None # Will be initialized in forward()
