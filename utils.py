@@ -34,7 +34,6 @@ def get_num_split(input):
 
     return num_split
 
-
 def get_index(input):
     global args
     num_split = get_num_split(input)
