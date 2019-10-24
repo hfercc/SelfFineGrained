@@ -29,7 +29,7 @@ class Model(nn.Module):
         if args.pooling == 'avg':
             self.fc = nn.Linear(2048, num_classes)
         elif args.pooling == 'MPNCOV':
-            self.avgpool = pooling.MPNCOV()
+            self.avgpool = pooling.MPNCOV(5, True, True, 256, None)
             self.fc = nn.Linear(2048, num_classes)
 
         if args.dataset == 'cifar':
