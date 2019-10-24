@@ -11,6 +11,9 @@ from resnetv2 import ResNet50 as resnet50v2
 from attention_pooling.attention_pooling import SelfieModel
 import pooling
 
+
+from collections import OrderedDict
+
 class Model(nn.Module):
 
     def __init__(self, args, num_classes = 200):
