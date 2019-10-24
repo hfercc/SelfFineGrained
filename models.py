@@ -257,12 +257,12 @@ class SelfEnsembleModel(nn.Module):
                 self.branches[i].load_state_dict(state_dict)
 
                 if self.layer_reduce is not None:
-                    self.layer_reduce.weight = origin_dict['layer_reduce.weight']
-                    self.layer_reduce.bias = origin_dict['layer_reduce.bias']
-                    self.layer_reduce_bn.weight = origin_dict['layer_reduce_bn.weight']
-                    self.layer_reduce_bn.bias = origin_dict['layer_reduce_bn.bias']
-                    self.layer_reduce_relu.weight = origin_dict['layer_reduce_relu.weight']
-                    self.layer_reduce_relu.bias = origin_dict['layer_reduce_relu.bias']
+                    new_state_dict = OrderedDict()
+                    for k, v in origin_dict.items():
+                        if k.startswith('layer_reduce'):
+                            new_state_dict[k] = v
+                    self.layer_reduce.load_state_dict(new_state_dict)
+                    
             else:
                 try:
                     state_dict = self.branches[i].state_dict()
