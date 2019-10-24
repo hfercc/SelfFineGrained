@@ -217,7 +217,7 @@ class SelfEnsembleModel(nn.Module):
         if args.pooling == 'avg':
             self.avgpool = nn.AdaptiveAvgPool2d((1,1))
             self.fc = nn.Linear(2048, num_classes)
-            self.layer_reduce_bn = None
+            self.layer_reduce = None
         elif args.pooling == 'MPNCOV':
             self.avgpool = pooling.MPNCOV()
             
@@ -243,7 +243,14 @@ class SelfEnsembleModel(nn.Module):
     def _load(self, files):
         for i in range(self.num_of_branches):
             if 'origin' in self.files[i]:
-                pass
+                if self.layer_reduce is not None:
+                    origin_dict = torch.load(files[i])
+                    self.layer_reduce.weight = origin_dict['layer_reduce.weight']
+                    self.layer_reduce.bias = origin_dict['layer_reduce.bias']
+                    self.layer_reduce_bn.weight = origin_dict['layer_reduce_bn.weight']
+                    self.layer_reduce_bn.bias = origin_dict['layer_reduce_bn.bias']
+                    self.layer_reduce_relu.weight = origin_dict['layer_reduce_relu.weight']
+                    self.layer_reduce_relu.bias = origin_dict['layer_reduce_relu.bias']
             else:
                 try:
                     state_dict = self.branches[i].state_dict()
@@ -277,6 +284,9 @@ class SelfEnsembleModel(nn.Module):
                     self.branches[i].load_state_dict(state_dict)
                     del new_state_dict
                     del data_dict
+
+        
+
 
 
     def forward(self, x):
