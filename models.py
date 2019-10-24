@@ -265,7 +265,7 @@ class SelfEnsembleModel(nn.Module):
                         temp_state = OrderedDict()
                         for k, v in new_state_dict.items():
                             if k.startswith(j):
-                                temp_state[k] = v
+                                temp_state[k.split('.')[1]] = v
 
                         getattr(self, j[:-1]).load_state_dict(temp_state)
 
