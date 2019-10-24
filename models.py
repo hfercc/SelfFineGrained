@@ -261,8 +261,14 @@ class SelfEnsembleModel(nn.Module):
                     for k, v in origin_dict.items():
                         if k.startswith('layer_reduce'):
                             new_state_dict[k] = v
-                    self.layer_reduce.load_state_dict(new_state_dict)
-                    
+                    for j in ['layer_reduce.', 'layer_reduce_bn.', 'layer_reduce_relu.']:
+                        temp_state = OrderedDict()
+                        for k, v in new_state_dict.items():
+                            if k.startswith(j):
+                                temp_state[k] = v
+
+                        getattr(self, j).load_state_dict(temp_state)
+
             else:
                 try:
                     state_dict = self.branches[i].state_dict()
