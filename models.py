@@ -244,11 +244,11 @@ class SelfEnsembleModel(nn.Module):
         for i in range(self.num_of_branches):
             if 'origin' in self.files[i]:
                 origin_dict = torch.load(files[i])
-                del origin_dict['fc.weight']
-                del origin_dict['fc.bias']
-                state_dict = self.branches[i].state_dict()
-                state_dict.update(origin_dict)
-                self.branches[i].load_state_dict(state_dict)
+                new_state_dict = OrderedDict()
+                for k, v in origin_dict.items():
+                    if (not k.startswith('fc')) and (not k.startswith('layer_reduce')):
+                        new_state_dict[k] = v
+                self.branches[i].load_state_dict(new_state_dict)
 
                 if self.layer_reduce is not None:
                     self.layer_reduce.weight = origin_dict['layer_reduce.weight']
