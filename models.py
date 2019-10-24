@@ -251,7 +251,10 @@ class SelfEnsembleModel(nn.Module):
                 for k, v in origin_dict.items():
                     if (not k.startswith('fc')) and (not k.startswith('layer_reduce')):
                         new_state_dict[k] = v
-                self.branches[i].load_state_dict(new_state_dict)
+
+                state_dict = self.branches[i].state_dict()
+                state_dict.update(new_state_dict)
+                self.branches[i].load_state_dict(state_dict)
 
                 if self.layer_reduce is not None:
                     self.layer_reduce.weight = origin_dict['layer_reduce.weight']
