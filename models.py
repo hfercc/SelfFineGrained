@@ -244,6 +244,8 @@ class SelfEnsembleModel(nn.Module):
         for i in range(self.num_of_branches):
             if 'origin' in self.files[i]:
                 origin_dict = torch.load(files[i])
+                del origin_dict['fc.weight']
+                del origin_dict['fc.bias']
                 state_dict = self.branches[i].state_dict()
                 state_dict.update(origin_dict)
                 self.branches[i].load_state_dict(state_dict)
