@@ -267,7 +267,7 @@ class SelfEnsembleModel(nn.Module):
                             if k.startswith(j):
                                 temp_state[k] = v
 
-                        getattr(self, j).load_state_dict(temp_state)
+                        getattr(self, j[:-1]).load_state_dict(temp_state)
 
             else:
                 try:
