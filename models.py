@@ -282,7 +282,6 @@ class SelfEnsembleModel(nn.Module):
                     state_dict = self.branches[i].state_dict()
                     model_loaded = torch.load(files[i])
                     data_dict = model_loaded['model_state']
-                    from collections import OrderedDict
                     new_state_dict = OrderedDict()
                     for k, v in data_dict.items():
                         name = k[7:] # remove `module.`
