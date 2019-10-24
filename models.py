@@ -243,8 +243,12 @@ class SelfEnsembleModel(nn.Module):
     def _load(self, files):
         for i in range(self.num_of_branches):
             if 'origin' in self.files[i]:
+                origin_dict = torch.load(files[i])
+                state_dict = self.branches[i].state_dict()
+                state_dict.update(origin_dict)
+                self.branches[i].load_state_dict(state_dict)
+
                 if self.layer_reduce is not None:
-                    origin_dict = torch.load(files[i])
                     self.layer_reduce.weight = origin_dict['layer_reduce.weight']
                     self.layer_reduce.bias = origin_dict['layer_reduce.bias']
                     self.layer_reduce_bn.weight = origin_dict['layer_reduce_bn.weight']
