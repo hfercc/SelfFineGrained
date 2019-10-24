@@ -217,9 +217,15 @@ class SelfEnsembleModel(nn.Module):
         if args.pooling == 'avg':
             self.avgpool = nn.AdaptiveAvgPool2d((1,1))
             self.fc = nn.Linear(2048, num_classes)
+            self.layer_reduce_bn = None
         elif args.pooling == 'MPNCOV':
             self.avgpool = pooling.MPNCOV()
-            self.fc = nn.Linear(2049 * 1024, num_classes)
+            
+            self.layer_reduce = nn.Conv2d(2048, 256, kernel_size=1, stride=1, padding=0,
+                               bias=False)
+            self.layer_reduce_bn = nn.BatchNorm2d(256)
+            self.layer_reduce_relu = nn.ReLU(inplace=True)
+            self.fc = nn.Linear(int(256*(256+1)/2), num_classes)
 
         self.gate = None # Will be initialized in forward()
 
@@ -289,6 +295,12 @@ class SelfEnsembleModel(nn.Module):
         feature_maps = torch.sum(torch.cat(feature_maps, 0), 0)
 
         feature_maps = self.layer4(feature_maps)
+
+        if self.layer_reduce is not None:
+            feature_maps = self.layer_reduce(feature_maps)
+            feature_maps = self.layer_reduce_bn(feature_maps)
+            feature_maps = self.layer_reduce_relu(feature_maps)
+
         feature_maps = self.avgpool(feature_maps)
         feature_maps = torch.flatten(feature_maps, 1)
 
