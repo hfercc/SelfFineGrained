@@ -216,6 +216,7 @@ class SelfEnsembleModel(nn.Module):
         elif args.arch == 'resnet50v2':
             self.branches = [resnet50v2() for _ in range(num_of_branches)]
             self.layer4 = resnet50v2().layer4 
+
         
         if args.pooling == 'avg':
             self.avgpool = nn.AdaptiveAvgPool2d((1,1))
